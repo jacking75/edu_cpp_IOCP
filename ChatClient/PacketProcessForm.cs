@@ -12,7 +12,7 @@ namespace csharp_test_client
 
         void SetPacketHandler()
         {
-            //PacketFuncDic.Add(PACKET_ID.PACKET_ID_ERROR_NTF, PacketProcess_ErrorNotify);
+            PacketFuncDic.Add(PACKET_ID.DEV_ECHO, PacketProcess_DevEcho);
             PacketFuncDic.Add(PACKET_ID.LOGIN_RES, PacketProcess_LoginResponse);
             PacketFuncDic.Add(PACKET_ID.ROOM_ENTER_RES, PacketProcess_RoomEnterResponse);
             PacketFuncDic.Add(PACKET_ID.ROOM_USER_LIST_NTF, PacketProcess_RoomUserListNotify);
@@ -20,8 +20,7 @@ namespace csharp_test_client
             PacketFuncDic.Add(PACKET_ID.ROOM_LEAVE_RES, PacketProcess_RoomLeaveResponse);
             PacketFuncDic.Add(PACKET_ID.ROOM_LEAVE_USER_NTF, PacketProcess_RoomLeaveUserNotify);
             PacketFuncDic.Add(PACKET_ID.ROOM_CHAT_RES, PacketProcess_RoomChatResponse);            
-            PacketFuncDic.Add(PACKET_ID.ROOM_CHAT_NOTIFY, PacketProcess_RoomChatNotify);
-            //PacketFuncDic.Add(PACKET_ID.PACKET_ID_ROOM_RELAY_NTF, PacketProcess_RoomRelayNotify);
+            PacketFuncDic.Add(PACKET_ID.ROOM_CHAT_NOTIFY, PacketProcess_RoomChatNotify);            
         }
 
         void PacketProcess(PacketData packet)
@@ -40,12 +39,9 @@ namespace csharp_test_client
             }         
         }
 
-        void PacketProcess_ErrorNotify(byte[] bodyData)
+        void PacketProcess_DevEcho(byte[] bodyData)
         {
-            var notifyPkt = new ErrorNtfPacket();
-            notifyPkt.FromBytes(bodyData);
-
-            DevLog.Write($"에러 통보 받음:  {notifyPkt.Error}");
+            DevLog.Write($"Echo:  {Encoding.UTF8.GetString(bodyData)}");
         }
 
 

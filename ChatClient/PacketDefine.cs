@@ -15,6 +15,8 @@ namespace csharp_test_client
 
     public enum PACKET_ID : ushort
     {
+        DEV_ECHO = 1,
+
         // 로그인
         LOGIN_REQ = 21,
         LOGIN_RES = 22,

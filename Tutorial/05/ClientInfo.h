@@ -2,6 +2,7 @@
 
 #include "Define.h"
 #include <stdio.h>
+#include <mutex>
 
 //클라이언트 정보를 담기위한 구조체
 class stClientInfo
@@ -13,6 +14,9 @@ public:
 		ZeroMemory(&mSendOverlappedEx, sizeof(stOverlappedEx));
 		mSock = INVALID_SOCKET;
 	}
+
+	~stClientInfo() = default;
+
 
 	void Init(const UINT32 index)
 	{
@@ -67,6 +71,7 @@ public:
 	void Clear()
 	{		
 		mSendPos = 0;
+		mIsSending = false;
 	}
 
 	bool BindIOCompletionPort(HANDLE iocpHandle_)
@@ -116,6 +121,8 @@ public:
 	// 1개의 스레드에서만 호출해야 한다!
 	bool SendMsg(const UINT32 dataSize_, char* pMsg_)
 	{
+		std::lock_guard<std::mutex> guard(mSendLock);
+
 		if ((mSendPos + dataSize_) > MAX_SOCK_SENDBUF)
 		{
 			mSendPos = 0;
@@ -126,10 +133,26 @@ public:
 		//전송될 메세지를 복사
 		CopyMemory(pSendBuf, pMsg_, dataSize_);
 		mSendPos += dataSize_;
+
+		return true;
+	}
+
+	bool SendIO()
+	{
+		if (mSendPos <= 0 || mIsSending)
+		{
+			return true;
+		}
+
+		std::lock_guard<std::mutex> guard(mSendLock);
+
+		mIsSending = true;
+
+		CopyMemory(mSendingBuf, &mSendBuf[0], mSendPos);
 		
 		//Overlapped I/O을 위해 각 정보를 셋팅해 준다.
-		mSendOverlappedEx.m_wsaBuf.len = dataSize_;
-		mSendOverlappedEx.m_wsaBuf.buf = pSendBuf;
+		mSendOverlappedEx.m_wsaBuf.len = mSendPos;
+		mSendOverlappedEx.m_wsaBuf.buf = &mSendingBuf[0];
 		mSendOverlappedEx.m_eOperation = IOOperation::SEND;
 
 		DWORD dwRecvNumBytes = 0;
@@ -148,11 +171,13 @@ public:
 			return false;
 		}
 
+		mSendPos = 0;
 		return true;
 	}
 
 	void SendCompleted(const UINT32 dataSize_)
 	{
+		mIsSending = false;
 		printf("[송신 완료] bytes : %d\n", dataSize_);
 	}
 
@@ -165,6 +190,9 @@ private:
 
 	char			mRecvBuf[MAX_SOCKBUF]; //데이터 버퍼
 
-	UINT32 mSendPos = 0;
+	std::mutex mSendLock;
+	bool mIsSending = false;
+	UINT64 mSendPos = 0;
 	char			mSendBuf[MAX_SOCK_SENDBUF]; //데이터 버퍼	
+	char			mSendingBuf[MAX_SOCK_SENDBUF]; //데이터 버퍼	
 };

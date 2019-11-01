@@ -99,6 +99,8 @@ public:
 			return false;
 		}
 		
+		CreateSendThread();
+
 		printf("서버 시작\n");
 		return true;
 	}
@@ -106,6 +108,24 @@ public:
 	//생성되어있는 쓰레드를 파괴한다.
 	void DestroyThread()
 	{
+		mIsSenderRun = false;
+
+		if (mSendThread.joinable())
+		{
+			mSendThread.join();
+		}
+
+
+		//Accepter 쓰레드를 종요한다.
+		mIsAccepterRun = false;
+		closesocket(mListenSocket);
+
+		if (mAccepterThread.joinable())
+		{
+			mAccepterThread.join();
+		}
+
+
 		mIsWorkerRun = false;
 		CloseHandle(mIOCPHandle);
 		
@@ -115,16 +135,7 @@ public:
 			{
 				th.join();
 			}
-		}
-		
-		//Accepter 쓰레드를 종요한다.
-		mIsAccepterRun = false;
-		closesocket(mListenSocket);
-		
-		if (mAccepterThread.joinable())
-		{
-			mAccepterThread.join();
-		}		
+		}			
 	}
 
 	bool SendMsg(const UINT32 sessionIndex_, const UINT32 dataSize_, char* pData)
@@ -144,16 +155,18 @@ private:
 	{
 		for (UINT32 i = 0; i < maxClientCount; ++i)
 		{
-			mClientInfos.emplace_back();
+			auto client = new stClientInfo();
+			client->Init(i);
 
-			mClientInfos[i].Init(i);
+			mClientInfos.push_back(client);
 		}
 	}
 
 	//WaitingThread Queue에서 대기할 쓰레드들을 생성
 	bool CreateWokerThread()
 	{
-		unsigned int uiThreadId = 0;
+		mIsWorkerRun = true;
+		
 		//WaingThread Queue에 대기 상태로 넣을 쓰레드들 생성 권장되는 개수 : (cpu개수 * 2) + 1 
 		for (int i = 0; i < MAX_WORKERTHREAD; i++)
 		{
@@ -164,14 +177,31 @@ private:
 		return true;
 	}
 	
+	//accept요청을 처리하는 쓰레드 생성
+	bool CreateAccepterThread()
+	{
+		mIsAccepterRun = true;
+		mAccepterThread = std::thread([this]() { AccepterThread(); });
+		
+		printf("AccepterThread 시작..\n");
+		return true;
+	}
+		  		
+	void CreateSendThread()
+	{
+		mIsSenderRun = true;		
+		mSendThread = std::thread([this]() { SendThread(); });
+		printf("SendThread 시작..\n");
+	}
+
 	//사용하지 않는 클라이언트 정보 구조체를 반환한다.
 	stClientInfo* GetEmptyClientInfo()
 	{
-		for (auto& client : mClientInfos)
+		for (auto client : mClientInfos)
 		{
-			if (client.IsConnectd() == false)
+			if (client->IsConnectd() == false)
 			{
-				return &client;
+				return client;
 			}
 		}
 
@@ -180,18 +210,20 @@ private:
 
 	stClientInfo* GetClientInfo(const UINT32 sessionIndex)
 	{
-		return &mClientInfos[sessionIndex];		
+		return mClientInfos[sessionIndex];
 	}
 
-	//accept요청을 처리하는 쓰레드 생성
-	bool CreateAccepterThread()
+	//소켓의 연결을 종료 시킨다.
+	void CloseSocket(stClientInfo* pClientInfo, bool bIsForce = false)
 	{
-		mAccepterThread = std::thread([this]() { AccepterThread(); });
-		
-		printf("AccepterThread 시작..\n");
-		return true;
+		auto clientIndex = pClientInfo->GetIndex();
+
+		pClientInfo->Close(bIsForce);
+
+		OnClose(clientIndex);
 	}
-		  		
+
+
 	//Overlapped I/O작업에 대한 완료 통보를 받아 그에 해당하는 처리를 하는 함수
 	void WokerThread()
 	{
@@ -296,20 +328,30 @@ private:
 		}
 	}
 	
-	//소켓의 연결을 종료 시킨다.
-	void CloseSocket(stClientInfo* pClientInfo, bool bIsForce = false)
+	void SendThread()
 	{
-		auto clientIndex = pClientInfo->GetIndex();
+		while (mIsSenderRun)
+		{
+			for (auto client : mClientInfos)
+			{
+				if (client->IsConnectd() == false)
+				{
+					continue;
+				}
 
-		pClientInfo->Close(bIsForce);
-		
-		OnClose(clientIndex);
+				client->SendIO();
+			}
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(8));
+		}
 	}
+
+	
 
 
 
 	//클라이언트 정보 저장 구조체
-	std::vector<stClientInfo> mClientInfos;
+	std::vector<stClientInfo*> mClientInfos;
 
 	//클라이언트의 접속을 받기위한 리슨 소켓
 	SOCKET		mListenSocket = INVALID_SOCKET;
@@ -317,18 +359,21 @@ private:
 	//접속 되어있는 클라이언트 수
 	int			mClientCnt = 0;
 	
+	//작업 쓰레드 동작 플래그
+	bool		mIsWorkerRun = false;
 	//IO Worker 스레드
 	std::vector<std::thread> mIOWorkerThreads;
 
+	//접속 쓰레드 동작 플래그
+	bool		mIsAccepterRun = false;
 	//Accept 스레드
 	std::thread	mAccepterThread;
 
-	//CompletionPort객체 핸들
-	HANDLE		mIOCPHandle = INVALID_HANDLE_VALUE;
-	
-	//작업 쓰레드 동작 플래그
-	bool		mIsWorkerRun = true;
-
 	//접속 쓰레드 동작 플래그
-	bool		mIsAccepterRun = true;
+	bool		mIsSenderRun = false;
+	//Accept 스레드
+	std::thread	mSendThread;
+
+	//CompletionPort객체 핸들
+	HANDLE		mIOCPHandle = INVALID_HANDLE_VALUE;	
 };

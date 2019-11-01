@@ -92,6 +92,7 @@ private:
 		return packetData;
 	}
 
+
 	bool mIsRunProcessThread = false;
 
 	std::thread mProcessThread;
