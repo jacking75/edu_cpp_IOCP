@@ -147,7 +147,7 @@ namespace csharp_test_client
                         }
                     }
                     
-                    DevLog.Write($"받은 데이터: {recvData.Item2}", LOG_LEVEL.INFO);
+                    DevLog.Write($"받은 데이터 크기: {recvData.Item1}", LOG_LEVEL.INFO);
                 }
                 else
                 {
@@ -276,8 +276,8 @@ namespace csharp_test_client
             var packetSize = bodyDataSize + PacketDef.PACKET_HEADER_SIZE;
 
             List<byte> dataSource = new List<byte>();
-            dataSource.AddRange(BitConverter.GetBytes((Int16)packetSize));
-            dataSource.AddRange(BitConverter.GetBytes((Int16)packetID));
+            dataSource.AddRange(BitConverter.GetBytes((UInt16)packetSize));
+            dataSource.AddRange(BitConverter.GetBytes((UInt16)packetID));
             dataSource.AddRange(new byte[] { (byte)0 });
             
             if (bodyData != null)

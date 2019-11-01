@@ -1,46 +1,10 @@
 //출처: 강정중님의 저서 '온라인 게임서버'에서
 #pragma once
 #pragma comment(lib, "ws2_32")
-#include <winsock2.h>
-#include <Ws2tcpip.h>
 
+#include "Define.h"
 #include <thread>
 #include <vector>
-
-#define MAX_SOCKBUF 1024	//패킷 크기
-#define MAX_WORKERTHREAD 4  //쓰레드 풀에 넣을 쓰레드 수
-
-enum class IOOperation
-{
-	RECV,
-	SEND
-};
-
-//WSAOVERLAPPED구조체를 확장 시켜서 필요한 정보를 더 넣었다.
-struct stOverlappedEx
-{
-	WSAOVERLAPPED m_wsaOverlapped;		//Overlapped I/O구조체
-	SOCKET		m_socketClient;			//클라이언트 소켓
-	WSABUF		m_wsaBuf;				//Overlapped I/O작업 버퍼
-	char		m_szBuf[ MAX_SOCKBUF ]; //데이터 버퍼
-	IOOperation m_eOperation;			//작업 동작 종류
-};	
-	
-//클라이언트 정보를 담기위한 구조체
-struct stClientInfo
-{
-	SOCKET			m_socketClient;			//Cliet와 연결되는 소켓
-	stOverlappedEx	m_stRecvOverlappedEx;	//RECV Overlapped I/O작업을 위한 변수
-	stOverlappedEx	m_stSendOverlappedEx;	//SEND Overlapped I/O작업을 위한 변수
-	
-	stClientInfo()
-	{
-		ZeroMemory( &m_stRecvOverlappedEx , sizeof( stOverlappedEx ) );
-		ZeroMemory( &m_stSendOverlappedEx , sizeof( stOverlappedEx ) );
-		m_socketClient = INVALID_SOCKET;
-	}
-};
-
 
 class IOCompletionPort
 {
@@ -238,7 +202,7 @@ private:
 		
 		//Overlapped I/O을 위해 각 정보를 셋팅해 준다.
 		pClientInfo->m_stRecvOverlappedEx.m_wsaBuf.len = MAX_SOCKBUF;
-		pClientInfo->m_stRecvOverlappedEx.m_wsaBuf.buf = pClientInfo->m_stRecvOverlappedEx.m_szBuf;
+		pClientInfo->m_stRecvOverlappedEx.m_wsaBuf.buf = pClientInfo->mRecvBuf;
 		pClientInfo->m_stRecvOverlappedEx.m_eOperation = IOOperation::RECV;
 
 		int nRet = WSARecv(pClientInfo->m_socketClient,
@@ -265,12 +229,13 @@ private:
 		DWORD dwRecvNumBytes = 0;
 
 		//전송될 메세지를 복사
-		CopyMemory(pClientInfo->m_stSendOverlappedEx.m_szBuf, pMsg, nLen);
+		CopyMemory(pClientInfo->mSendBuf, pMsg, nLen);
+		pClientInfo->mSendBuf[nLen] = '\0';
 
 
 		//Overlapped I/O을 위해 각 정보를 셋팅해 준다.
 		pClientInfo->m_stSendOverlappedEx.m_wsaBuf.len = nLen;
-		pClientInfo->m_stSendOverlappedEx.m_wsaBuf.buf = pClientInfo->m_stSendOverlappedEx.m_szBuf;
+		pClientInfo->m_stSendOverlappedEx.m_wsaBuf.buf = pClientInfo->mSendBuf;
 		pClientInfo->m_stSendOverlappedEx.m_eOperation = IOOperation::SEND;
 
 		int nRet = WSASend(pClientInfo->m_socketClient,
@@ -295,7 +260,7 @@ private:
 	void WokerThread()
 	{
 		//CompletionKey를 받을 포인터 변수
-		stClientInfo* pClientInfo = NULL;
+		stClientInfo* pClientInfo = nullptr;
 		//함수 호출 성공 여부
 		BOOL bSuccess = TRUE;
 		//Overlapped I/O작업에서 전송된 데이터 크기
@@ -305,14 +270,6 @@ private:
 
 		while (mIsWorkerRun)
 		{
-			//////////////////////////////////////////////////////
-			//이 함수로 인해 쓰레드들은 WaitingThread Queue에
-			//대기 상태로 들어가게 된다.
-			//완료된 Overlapped I/O작업이 발생하면 IOCP Queue에서
-			//완료된 작업을 가져와 뒤 처리를 한다.
-			//그리고 PostQueuedCompletionStatus()함수에의해 사용자
-			//메세지가 도착되면 쓰레드를 종료한다.
-			//////////////////////////////////////////////////////
 			bSuccess = GetQueuedCompletionStatus(mIOCPHandle,
 				&dwIoSize,					// 실제로 전송된 바이트
 				(PULONG_PTR)&pClientInfo,		// CompletionKey
@@ -340,22 +297,23 @@ private:
 			}
 
 
-			stOverlappedEx* pOverlappedEx = (stOverlappedEx*)lpOverlapped;
+			auto pOverlappedEx = (stOverlappedEx*)lpOverlapped;
 
 			//Overlapped I/O Recv작업 결과 뒤 처리
 			if (IOOperation::RECV == pOverlappedEx->m_eOperation)
 			{
-				pOverlappedEx->m_szBuf[dwIoSize] = NULL;
-				printf("[수신] bytes : %d , msg : %s\n", dwIoSize, pOverlappedEx->m_szBuf);
+				pClientInfo->mRecvBuf[dwIoSize] = '\0';
+				printf("[수신] bytes : %d , msg : %s\n", dwIoSize, pClientInfo->mRecvBuf);
 
 				//클라이언트에 메세지를 에코한다.
-				SendMsg(pClientInfo, pOverlappedEx->m_szBuf, dwIoSize);
+				SendMsg(pClientInfo, pClientInfo->mRecvBuf, dwIoSize);
+
 				BindRecv(pClientInfo);
 			}
 			//Overlapped I/O Send작업 결과 뒤 처리
 			else if (IOOperation::SEND == pOverlappedEx->m_eOperation)
 			{
-				printf("[송신] bytes : %d , msg : %s\n", dwIoSize, pOverlappedEx->m_szBuf);
+				printf("[송신] bytes : %d , msg : %s\n", dwIoSize, pClientInfo->mSendBuf);
 			}
 			//예외 상황
 			else
