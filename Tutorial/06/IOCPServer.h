@@ -144,9 +144,10 @@ private:
 	{
 		for (UINT32 i = 0; i < maxClientCount; ++i)
 		{
-			mClientInfos.emplace_back();
+			auto client = new stClientInfo;
+			client->Init(i);
 
-			mClientInfos[i].Init(i);
+			mClientInfos.push_back(client);
 		}
 	}
 
@@ -169,9 +170,9 @@ private:
 	{
 		for (auto& client : mClientInfos)
 		{
-			if (client.IsConnectd() == false)
+			if (client->IsConnectd() == false)
 			{
-				return &client;
+				return client;
 			}
 		}
 
@@ -180,7 +181,7 @@ private:
 
 	stClientInfo* GetClientInfo(const UINT32 sessionIndex)
 	{
-		return &mClientInfos[sessionIndex];		
+		return mClientInfos[sessionIndex];		
 	}
 
 	//accept요청을 처리하는 쓰레드 생성
@@ -245,8 +246,6 @@ private:
 			//Overlapped I/O Send작업 결과 뒤 처리
 			else if (IOOperation::SEND == pOverlappedEx->m_eOperation)
 			{
-				delete[] pOverlappedEx->m_wsaBuf.buf;
-				delete pOverlappedEx;
 				pClientInfo->SendCompleted(dwIoSize);
 			}
 			//예외 상황
@@ -311,7 +310,7 @@ private:
 
 
 	//클라이언트 정보 저장 구조체
-	std::vector<stClientInfo> mClientInfos;
+	std::vector<stClientInfo*> mClientInfos;
 
 	//클라이언트의 접속을 받기위한 리슨 소켓
 	SOCKET		mListenSocket = INVALID_SOCKET;

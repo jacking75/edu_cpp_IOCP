@@ -2,7 +2,9 @@
 
 #include "Define.h"
 #include <stdio.h>
-//#include <queue>
+#include <mutex>
+#include <queue>
+
 
 //클라이언트 정보를 담기위한 구조체
 class stClientInfo
@@ -114,7 +116,7 @@ public:
 
 	// 1개의 스레드에서만 호출해야 한다!
 	bool SendMsg(const UINT32 dataSize_, char* pMsg_)
-	{
+	{	
 		auto sendOverlappedEx = new stOverlappedEx;
 		ZeroMemory(sendOverlappedEx, sizeof(stOverlappedEx));
 		sendOverlappedEx->m_wsaBuf.len = dataSize_;
@@ -122,6 +124,41 @@ public:
 		CopyMemory(sendOverlappedEx->m_wsaBuf.buf, pMsg_, dataSize_);
 		sendOverlappedEx->m_eOperation = IOOperation::SEND;
 		
+		std::lock_guard<std::mutex> guard(mSendLock);
+
+		mSendDataqueue.push(sendOverlappedEx);
+
+		if (mSendDataqueue.size() == 1)
+		{
+			SendIO();
+		}
+		
+		return true;
+	}	
+
+	void SendCompleted(const UINT32 dataSize_)
+	{		
+		printf("[송신 완료] bytes : %d\n", dataSize_);
+
+		std::lock_guard<std::mutex> guard(mSendLock);
+
+		delete[] mSendDataqueue.front()->m_wsaBuf.buf;
+		delete mSendDataqueue.front();
+
+		mSendDataqueue.pop();
+
+		if (mSendDataqueue.empty() == false)
+		{
+			SendIO();
+		}
+	}
+
+
+private:
+	bool SendIO()
+	{
+		auto sendOverlappedEx = mSendDataqueue.front();
+
 		DWORD dwRecvNumBytes = 0;
 		int nRet = WSASend(mSock,
 			&(sendOverlappedEx->m_wsaBuf),
@@ -141,18 +178,13 @@ public:
 		return true;
 	}
 
-	void SendCompleted(const UINT32 dataSize_)
-	{
-		printf("[송신 완료] bytes : %d\n", dataSize_);
-	}
 
-
-private:
 	INT32 mIndex = 0;
 	SOCKET			mSock;			//Cliet와 연결되는 소켓
 	stOverlappedEx	mRecvOverlappedEx;	//RECV Overlapped I/O작업을 위한 변수
 	
 	char			mRecvBuf[MAX_SOCKBUF]; //데이터 버퍼
 
-	//std::queue<stOverlappedEx*> mSendDataqueue;
+	std::mutex mSendLock;
+	std::queue<stOverlappedEx*> mSendDataqueue;
 };
