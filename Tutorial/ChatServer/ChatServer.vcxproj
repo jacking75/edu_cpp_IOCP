@@ -61,10 +61,12 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalIncludeDirectories>../thirdparty/hiredis;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>../thirdparty/hiredis/VS-IDE/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Win64|x64'">
@@ -90,6 +92,8 @@
     <ClInclude Include="ErrorCode.h" />
     <ClInclude Include="Packet.h" />
     <ClInclude Include="PacketManager.h" />
+    <ClInclude Include="RedisManager.h" />
+    <ClInclude Include="RedisTaskDefine.h" />
     <ClInclude Include="Room.h" />
     <ClInclude Include="RoomManager.h" />
     <ClInclude Include="ServerNetwork\ClientInfo.h" />

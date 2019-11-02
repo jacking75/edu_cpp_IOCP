@@ -2,11 +2,13 @@
 #include <cstring>
 
 
-#include "Packet.h"
+#include "UserManager.h"
+#include "RoomManager.h"
 #include "PacketManager.h"
+#include "RedisManager.h"
 
 
-void PacketManager::Init(UserManager* pUserManager, RoomManager* pRoomManager) 
+void PacketManager::Init(const UINT32 maxClient)
 {
 	m_RecvFuntionDictionary = std::unordered_map<int, PROCESS_RECV_PACKET_FUNCTION>();
 
@@ -19,25 +21,57 @@ void PacketManager::Init(UserManager* pUserManager, RoomManager* pRoomManager)
 	m_RecvFuntionDictionary[(int)PACKET_ID::ROOM_LEAVE_REQUEST] = &PacketManager::ProcessLeaveRoom;
 	m_RecvFuntionDictionary[(int)PACKET_ID::ROOM_CHAT_REQUEST] = &PacketManager::ProcessRoomChatMessage;
 				
-	m_pUserManager = pUserManager;
-	m_pRoomManager = pRoomManager;
+	CreateCompent(maxClient);
+
+	mRedisMgr = new RedisManager;// std::make_unique<RedisManager>();
 }
 
-void PacketManager::Run()
+void PacketManager::CreateCompent(const UINT32 maxClient)
+{
+	m_pUserManager = new UserManager;
+	m_pUserManager->Init(maxClient);
+
+		
+	UINT32 startRoomNummber = 0;
+	UINT32 maxRoomCount = 10;
+	UINT32 maxRoomUserCount = 4;
+	m_pRoomManager = new RoomManager;
+	m_pRoomManager->SendPacketFunc = SendPacketFunc;
+	m_pRoomManager->Init(startRoomNummber, maxRoomCount, maxRoomUserCount);
+}
+
+bool PacketManager::Run()
 {	
+	if (mRedisMgr->Run("127.0.0.1", 6379, 1) == false)
+	{
+		return false;
+	}
+
 	//이 부분을 패킷 처리 부분으로 이동 시킨다.
 	mIsRunProcessThread = true;
 	mProcessThread = std::thread([this]() { ProcessPacket(); });
+
+	return true;
 }
 
 void PacketManager::End()
 {
+	mRedisMgr->End();
+
 	mIsRunProcessThread = false;
 
 	if (mProcessThread.joinable())
 	{
 		mProcessThread.join();
 	}
+}
+
+void PacketManager::ReceivePacketData(const UINT32 clientIndex_, const UINT32 size_, char* pData_)
+{
+	auto pUser = m_pUserManager->GetUserByConnIdx(clientIndex_);
+	pUser->SetPacketData(size_, pData_);
+
+	EnqueuePacketData(clientIndex_);
 }
 
 void PacketManager::ProcessPacket()
@@ -162,10 +196,18 @@ void PacketManager::ProcessLogin(UINT32 connIndex, UINT16 packetSize_, char* pPa
 	//여기에서 이미 접속된 유저인지 확인하고, 접속된 유저라면 실패한다.
 	if (m_pUserManager->FindUserIndexByID(pUserID) == -1) 
 	{ 
-		//접속중이 아닌 유저라면
-		//유저를 관리하는 객체에 넣는다.
-		m_pUserManager->AddUser(pUserID, connIndex);
-		loginResPacket.Result = (UINT16)ERROR_CODE::NONE;
+		RedisLoginReq dbReq;
+		CopyMemory(dbReq.UserID, pLoginReqPacket->UserID, (MAX_USER_ID_LEN + 1));
+		CopyMemory(dbReq.UserPW, pLoginReqPacket->UserPW, (MAX_USER_PW_LEN + 1));
+
+		RedisTask task;
+		task.UserIndex = connIndex;
+		task.TaskID = RedisTaskID::REQUEST_LOGIN;
+		task.DataSize = sizeof(RedisLoginReq);
+		task.pData = new char[task.DataSize];
+		mRedisMgr->PushTask(task);
+
+		printf("Login To Redis user id = %s\n", pUserID);
 	}
 	else 
 	{

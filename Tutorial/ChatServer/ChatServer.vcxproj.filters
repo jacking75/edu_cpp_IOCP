@@ -22,6 +22,8 @@
     <ClInclude Include="ServerNetwork\IOCPServer.h">
       <Filter>ServerNetwork</Filter>
     </ClInclude>
+    <ClInclude Include="RedisManager.h" />
+    <ClInclude Include="RedisTaskDefine.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ServerNetwork">

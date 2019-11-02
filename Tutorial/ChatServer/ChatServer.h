@@ -1,8 +1,6 @@
 #pragma once
 
 #include "./ServerNetwork/IOCPServer.h"
-#include "UserManager.h"
-#include "RoomManager.h"
 #include "PacketManager.h"
 #include "Packet.h"
 
@@ -41,36 +39,21 @@ public:
 	{
 		printf("[OnReceive] 클라이언트: Index(%d), dataSize(%d)\n", clientIndex_, size_);
 
-		auto pUser = m_pUserManager->GetUserByConnIdx(clientIndex_);
-		pUser->SetPacketData(size_, pData_);
+		m_pPacketManager->ReceivePacketData(clientIndex_, size_, pData_);
 	}
 
 	void Run(const UINT32 maxClient)
 	{
-		m_pPacketManager = std::make_unique<PacketManager>();
-		m_pUserManager = std::make_unique<UserManager>();
-		m_pRoomManager = std::make_unique<RoomManager>();
-
 		auto sendPacketFunc = [&](UINT32 connectionIndex, UINT16 packetSize, char* pSendPacket)
 		{
 			SendMsg(connectionIndex, packetSize, pSendPacket);
 		};
 
+		m_pPacketManager = std::make_unique<PacketManager>();
 		m_pPacketManager->SendPacketFunc = sendPacketFunc;
-		m_pPacketManager->Init(m_pUserManager.get(), m_pRoomManager.get());
-
-		m_pUserManager->Init(maxClient);
-
-		UINT32 startRoomNummber = 0;
-		UINT32 maxRoomCount = 10;
-		UINT32 maxRoomUserCount = 4;
-		m_pRoomManager->SendPacketFunc = sendPacketFunc;
-
-		m_pRoomManager->Init(startRoomNummber, maxRoomCount, maxRoomUserCount);
-
+		m_pPacketManager->Init(maxClient);		
 		m_pPacketManager->Run();
 		
-
 		StartServer(maxClient);
 	}
 
@@ -83,7 +66,5 @@ public:
 
 
 private:	
-	std::unique_ptr<UserManager> m_pUserManager;
 	std::unique_ptr<PacketManager> m_pPacketManager;
-	std::unique_ptr<RoomManager> m_pRoomManager;
 };
