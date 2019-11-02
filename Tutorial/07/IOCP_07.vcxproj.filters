@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="IOCPServer.h">
+      <Filter>ServerNetwork</Filter>
+    </ClInclude>
+    <ClInclude Include="Define.h">
+      <Filter>ServerNetwork</Filter>
+    </ClInclude>
+    <ClInclude Include="EchoServer.h" />
+    <ClInclude Include="Packet.h" />
+    <ClInclude Include="ClientInfo.h">
+      <Filter>ServerNetwork</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="ServerNetwork">
+      <UniqueIdentifier>{1fc0f584-76ea-4096-9ebc-805fceb35389}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
