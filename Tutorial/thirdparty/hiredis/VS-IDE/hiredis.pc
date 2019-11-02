@@ -1,0 +1,11 @@
+prefix=C:/Program Files (x86)/hiredis
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+pkgincludedir=${includedir}/hiredis
+
+Name: hiredis
+Description: Minimalistic C client library for Redis.
+Version: 0.14.0
+Libs: -L${libdir} -lhiredis
+Cflags: -I${pkgincludedir} -D_FILE_OFFSET_BITS=64
