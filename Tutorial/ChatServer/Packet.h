@@ -42,8 +42,18 @@ struct PacketInfo
 	char* pDataPtr = nullptr;
 };
 
+
 enum class  PACKET_ID : UINT16
 {
+	//SYSTEM
+	SYS_USER_CONNECT = 11,
+	SYS_USER_DISCONNECT = 12,
+	SYS_END = 30,
+
+	//DB
+	DB_END = 199,
+
+	//Client
 	LOGIN_REQUEST = 201,
 	LOGIN_RESPONSE = 202,
 

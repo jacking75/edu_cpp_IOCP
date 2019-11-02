@@ -1,6 +1,7 @@
 #include <utility>
 #include <cstring>
 
+
 #include "Packet.h"
 #include "PacketManager.h"
 
@@ -9,7 +10,11 @@ void PacketManager::Init(UserManager* pUserManager, RoomManager* pRoomManager)
 {
 	m_RecvFuntionDictionary = std::unordered_map<int, PROCESS_RECV_PACKET_FUNCTION>();
 
+	m_RecvFuntionDictionary[(int)PACKET_ID::SYS_USER_CONNECT] = &PacketManager::ProcessUserConnect;
+	m_RecvFuntionDictionary[(int)PACKET_ID::SYS_USER_DISCONNECT] = &PacketManager::ProcessUserDisConnect;
+
 	m_RecvFuntionDictionary[(int)PACKET_ID::LOGIN_REQUEST] = &PacketManager::ProcessLogin;
+	
 	m_RecvFuntionDictionary[(int)PACKET_ID::ROOM_ENTER_REQUEST] = &PacketManager::ProcessEnterRoom;
 	m_RecvFuntionDictionary[(int)PACKET_ID::ROOM_LEAVE_REQUEST] = &PacketManager::ProcessLeaveRoom;
 	m_RecvFuntionDictionary[(int)PACKET_ID::ROOM_CHAT_REQUEST] = &PacketManager::ProcessRoomChatMessage;
@@ -18,7 +23,95 @@ void PacketManager::Init(UserManager* pUserManager, RoomManager* pRoomManager)
 	m_pRoomManager = pRoomManager;
 }
 
+void PacketManager::Run()
+{	
+	//이 부분을 패킷 처리 부분으로 이동 시킨다.
+	mIsRunProcessThread = true;
+	mProcessThread = std::thread([this]() { ProcessPacket(); });
+}
 
+void PacketManager::End()
+{
+	mIsRunProcessThread = false;
+
+	if (mProcessThread.joinable())
+	{
+		mProcessThread.join();
+	}
+}
+
+void PacketManager::ProcessPacket()
+{
+	while (mIsRunProcessThread)
+	{
+		bool isIdle = true;
+
+		if (auto packetData = DequePacketData(); packetData.PacketId > (UINT16)PACKET_ID::SYS_END)
+		{
+			isIdle = false;
+			ProcessRecvPacket(packetData.SessionIndex, packetData.PacketId, packetData.DataSize, packetData.pDataPtr);
+		}
+
+		if (auto packetData = DequeSystemPacketData(); packetData.PacketId != 0)
+		{
+			isIdle = false;
+			ProcessRecvPacket(packetData.SessionIndex, packetData.PacketId, packetData.DataSize, packetData.pDataPtr);
+		}
+
+		if(isIdle)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+	}
+}
+
+void PacketManager::EnqueuePacketData(const UINT32 sessionIndex_)
+{
+	std::lock_guard<std::mutex> guard(mLock);
+	mInComingPacketUserIndex.push_back(sessionIndex_);
+}
+
+PacketInfo PacketManager::DequePacketData()
+{
+	UINT32 userIndex = 0;
+
+	{
+		std::lock_guard<std::mutex> guard(mLock);
+		if (mInComingPacketUserIndex.empty())
+		{
+			return PacketInfo();
+		}
+
+		userIndex = mInComingPacketUserIndex.front();
+		mInComingPacketUserIndex.pop_front();
+	}
+
+	auto pUser = m_pUserManager->GetUserByConnIdx(userIndex);
+	auto packetData = pUser->GetPacket();
+	packetData.SessionIndex = userIndex;
+	return packetData;
+}
+
+void PacketManager::PushSystemPacket(PacketInfo packet)
+{
+	std::lock_guard<std::mutex> guard(mLock);
+	mSystemPacketQueue.push_back(packet);
+}
+
+PacketInfo PacketManager::DequeSystemPacketData()
+{
+	
+	std::lock_guard<std::mutex> guard(mLock);
+	if (mSystemPacketQueue.empty())
+	{
+		return PacketInfo();
+	}
+
+	auto packetData = mSystemPacketQueue.front();
+	mSystemPacketQueue.pop_front();
+	
+	return packetData;
+}
 
 void PacketManager::ProcessRecvPacket(const UINT32 connectionIndex_, const UINT16 packetId_, const UINT16 packetSize_, char* pPacket_)
 {
@@ -29,7 +122,19 @@ void PacketManager::ProcessRecvPacket(const UINT32 connectionIndex_, const UINT1
 	}
 
 }
-		
+
+
+void PacketManager::ProcessUserConnect(UINT32 connIndex, UINT16 packetSize_, char* pPacket_)
+{
+	auto pUser = m_pUserManager->GetUserByConnIdx(connIndex);
+	pUser->Clear();
+}
+
+void PacketManager::ProcessUserDisConnect(UINT32 connIndex, UINT16 packetSize_, char* pPacket_)
+{
+	ClearConnectionInfo(connIndex);
+}
+
 void PacketManager::ProcessLogin(UINT32 connIndex, UINT16 packetSize_, char* pPacket_)
 { 
 	if (LOGIN_REQUEST_PACKET_SZIE != packetSize_)

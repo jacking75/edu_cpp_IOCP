@@ -12,7 +12,8 @@
 #include <thread>
 #include <mutex>
 
-//const UINT32 MAX_USER_COUNT = 
+//TODO redis 연동. hiredis 포함하기
+
 class ChatServer : public IOCPServer
 {
 public:
@@ -24,14 +25,16 @@ public:
 	{
 		printf("[OnConnect] 클라이언트: Index(%d)\n", clientIndex_);
 
-		//TODO User 객체 초기화 하기. 시스템 패킷을 보낸다.
+		PacketInfo packet{ clientIndex_, (UINT16)PACKET_ID::SYS_USER_CONNECT, 0 };
+		m_pPacketManager->PushSystemPacket(packet);
 	}
 
 	virtual void OnClose(const UINT32 clientIndex_) override 
 	{
 		printf("[OnClose] 클라이언트: Index(%d)\n", clientIndex_);
 
-		//TODO 종료 처리하기. 시스템 패킷을 보낸다.
+		PacketInfo packet{ clientIndex_, (UINT16)PACKET_ID::SYS_USER_DISCONNECT, 0 };
+		m_pPacketManager->PushSystemPacket(packet);
 	}
 
 	virtual void OnReceive(const UINT32 clientIndex_, const UINT32 size_, char* pData_) override  
@@ -40,9 +43,6 @@ public:
 
 		auto pUser = m_pUserManager->GetUserByConnIdx(clientIndex_);
 		pUser->SetPacketData(size_, pData_);
-
-		std::lock_guard<std::mutex> guard(mLock);
-		mInComingPacketUserIndex.push_back(clientIndex_);		
 	}
 
 	void Run(const UINT32 maxClient)
@@ -68,72 +68,21 @@ public:
 
 		m_pRoomManager->Init(startRoomNummber, maxRoomCount, maxRoomUserCount);
 
-		//이 부분을 패킷 처리 부분으로 이동 시킨다.
-		mIsRunProcessThread = true;
-		mProcessThread = std::thread([this]() { ProcessPacket(); });
+		m_pPacketManager->Run();
+		
 
 		StartServer(maxClient);
 	}
 
 	void End()
 	{
-		mIsRunProcessThread = false;
-
-		if (mProcessThread.joinable())
-		{
-			mProcessThread.join();
-		}
-
+		m_pPacketManager->End();
+		
 		DestroyThread();
 	}
 
-private:
-	void ProcessPacket()
-	{
-		while (mIsRunProcessThread)
-		{
-			auto packetData = DequePacketData();
-			if (packetData.PacketId != 0)
-			{
-				m_pPacketManager->ProcessRecvPacket(packetData.SessionIndex, packetData.PacketId, packetData.DataSize, packetData.pDataPtr);
-			}
-			else
-			{
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
-			}
-		}
-	}
 
-	PacketInfo DequePacketData()
-	{
-		UINT32 userIndex = 0;
-
-		{
-			std::lock_guard<std::mutex> guard(mLock);
-			if (mInComingPacketUserIndex.empty())
-			{
-				return PacketInfo();
-			}
-
-			userIndex = mInComingPacketUserIndex.front();
-			mInComingPacketUserIndex.pop_front();
-		}
-
-		auto pUser = m_pUserManager->GetUserByConnIdx(userIndex);
-		auto packetData = pUser->GetPacket();		
-		packetData.SessionIndex = userIndex;
-		return packetData;
-	}
-
-
-	bool mIsRunProcessThread = false;
-
-	std::thread mProcessThread;
-
-	std::mutex mLock;
-	std::deque<UINT32> mInComingPacketUserIndex;
-	//char* mPacketDataBuffer = nullptr;
-
+private:	
 	std::unique_ptr<UserManager> m_pUserManager;
 	std::unique_ptr<PacketManager> m_pPacketManager;
 	std::unique_ptr<RoomManager> m_pRoomManager;
