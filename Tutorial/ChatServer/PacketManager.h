@@ -12,11 +12,12 @@ public:
 
 	void Init(UserManager* pUserManager, RoomManager* pRoomManager);
 
-	void ProcessRecvPacket(INT32 connectionIndex, char* pBuf, INT16 copySize);
-	void ProcessLogin(INT32 connIndex, char* pBuf, INT16 copySize);
-	void ProcessEnterRoom(INT32 connIndex, char* pBuf, INT16 copySize);
-	void ProcessLeaveRoom(INT32 connIndex, char* pBuf, INT16 copySize);
-	void ProcessRoomChatMessage(INT32 connIndex, char* pBuf, INT16 copySize);
+	void ProcessRecvPacket(const UINT32 connectionIndex_, const UINT16 packetId_, const UINT16 packetSize_, char* pPacket_);
+
+	void ProcessLogin(UINT32 connIndex, UINT16 packetSize_, char* pPacket_);
+	void ProcessEnterRoom(UINT32 connIndex, UINT16 packetSize_, char* pPacket_);
+	void ProcessLeaveRoom(UINT32 connIndex, UINT16 packetSize_, char* pPacket_);
+	void ProcessRoomChatMessage(UINT32 connIndex, UINT16 packetSize_, char* pPacket_);
 		
 
 	void ClearConnectionInfo(INT32 connIndex);
@@ -26,7 +27,7 @@ public:
 
 
 private:
-	typedef void(PacketManager::* PROCESS_RECV_PACKET_FUNCTION)(INT32, char*, INT16);
+	typedef void(PacketManager::* PROCESS_RECV_PACKET_FUNCTION)(UINT32, UINT16, char*);
 	std::unordered_map<int, PROCESS_RECV_PACKET_FUNCTION> m_RecvFuntionDictionary;
 
 	UserManager* m_pUserManager;

@@ -76,7 +76,19 @@ public:
 	{
 		if ((mPakcetDataBufferWPos + dataSize_) >= PACKET_DATA_BUFFER_SIZE)
 		{
-			mPakcetDataBufferWPos = 0;
+			auto remainDataSize = mPakcetDataBufferWPos - mPakcetDataBufferRPos;
+
+			if (remainDataSize > 0)
+			{
+				CopyMemory(&mPakcetDataBuffer[0], &mPakcetDataBuffer[mPakcetDataBufferRPos], remainDataSize);
+				mPakcetDataBufferWPos = remainDataSize;
+			}
+			else
+			{
+				mPakcetDataBufferWPos = 0;
+			}
+			
+			mPakcetDataBufferRPos = 0;
 		}
 
 		CopyMemory(&mPakcetDataBuffer[mPakcetDataBufferWPos], pData, dataSize_);
@@ -85,56 +97,32 @@ public:
 
 	PacketInfo GetPacket()
 	{
-		const int PACKET_HEADER_LENGTH = 5;
 		const int PACKET_SIZE_LENGTH = 2;
 		const int PACKET_TYPE_LENGTH = 2;
 		short packetSize = 0;
+		
+		UINT32 remainByte = mPakcetDataBufferWPos - mPakcetDataBufferRPos;
 
-		while (true)
+		if(remainByte < PACKET_HEADER_LENGTH)
 		{
-			if (remainByte < PACKET_HEADER_LENGTH)
-			{
-				break;
-			}
-
-			CopyMemory(&packetSize, pBuffer, PACKET_SIZE_LENGTH);
-			auto currentSize = packetSize;
-
-			if (0 >= packetSize || packetSize > pConnection->RecvBufferSize())
-			{
-				char logmsg[128] = { 0, }; sprintf_s(logmsg, "IOCPServer::DoRecv. Arrived Wrong Packet.");
-				LogFuncPtr((int)LogLevel::Error, logmsg);
-
-				if (pConnection->CloseComplete())
-				{
-					HandleExceptionCloseConnection(pConnection);
-				}
-				return;
-			}
-
-			if (remainByte >= (DWORD)currentSize)
-			{
-				auto pMsg = m_pMsgPool->AllocMsg();
-				if (pMsg == nullptr)
-				{
-					return;
-				}
-
-				pMsg->SetMessage(MessageType::OnRecv, pBuffer);
-				if (PostNetMessage(pConnection, pMsg, currentSize) != NetResult::Success)
-				{
-					m_pMsgPool->DeallocMsg(pMsg);
-					return;
-				}
-
-				remainByte -= currentSize;
-				pBuffer += currentSize;
-			}
-			else
-			{
-				break;
-			}
+			return PacketInfo();
 		}
+
+		auto pHeader = (PACKET_HEADER*)&mPakcetDataBuffer[mPakcetDataBufferRPos];
+		
+		if (pHeader->PacketLength > remainByte)
+		{
+			return PacketInfo();
+		}
+
+		PacketInfo packetInfo;
+		packetInfo.PacketId = pHeader->PacketId;
+		packetInfo.DataSize = pHeader->PacketLength;
+		packetInfo.pDataPtr = &mPakcetDataBuffer[mPakcetDataBufferRPos];
+		
+		mPakcetDataBufferRPos += pHeader->PacketLength;
+
+		return packetInfo;
 	}
 
 

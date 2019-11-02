@@ -1,4 +1,4 @@
-#include "EchoServer.h"
+#include "ChatServer.h"
 #include <string>
 #include <iostream>
 
@@ -8,7 +8,7 @@ const UINT32 MAX_IO_WORKER_THREAD = 4;  //쓰레드 풀에 넣을 쓰레드 수
 
 int main()
 {
-	EchoServer server;
+	ChatServer server;
 
 	//소켓을 초기화
 	server.Init(MAX_IO_WORKER_THREAD);

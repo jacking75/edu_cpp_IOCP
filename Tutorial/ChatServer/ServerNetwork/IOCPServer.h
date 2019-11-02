@@ -129,7 +129,7 @@ public:
 		
 		//Accepter 쓰레드를 종요한다.
 		mIsAccepterRun = false;
-		closesocket(mListenSocket);
+		closesocket(mListenSocket);  
 		
 		if (mAccepterThread.joinable())
 		{
@@ -164,9 +164,8 @@ private:
 	//WaitingThread Queue에서 대기할 쓰레드들을 생성
 	bool CreateWokerThread()
 	{
-		unsigned int uiThreadId = 0;
 		//WaingThread Queue에 대기 상태로 넣을 쓰레드들 생성 권장되는 개수 : (cpu개수 * 2) + 1 
-		for (int i = 0; i < MaxIOWorkerThreadCount; i++)
+		for (UINT32 i = 0; i < MaxIOWorkerThreadCount; i++)
 		{
 			mIOWorkerThreads.emplace_back([this](){ WokerThread(); });			
 		}
@@ -241,7 +240,7 @@ private:
 			if (FALSE == bSuccess || (0 == dwIoSize && IOOperation::ACCEPT != pOverlappedEx->m_eOperation))
 			{
 				//printf("socket(%d) 접속 끊김\n", (int)pClientInfo->m_socketClient);
-				CloseSocket(pClientInfo);
+				CloseSocket(pClientInfo); //Caller WokerThread()
 				continue;
 			}
 
@@ -258,7 +257,7 @@ private:
 				}
 				else
 				{
-					CloseSocket(pClientInfo, true);
+					CloseSocket(pClientInfo, true);  //Caller WokerThread()
 				}
 			}
 			//Overlapped I/O Recv작업 결과 뒤 처리
@@ -316,6 +315,11 @@ private:
 	//소켓의 연결을 종료 시킨다.
 	void CloseSocket(stClientInfo* pClientInfo, bool bIsForce = false)
 	{
+		if (pClientInfo->IsConnectd() == false)
+		{
+			return;
+		}
+
 		auto clientIndex = pClientInfo->GetIndex();
 
 		pClientInfo->Close(bIsForce);

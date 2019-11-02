@@ -55,14 +55,14 @@ public:
 
 		CopyMemory(roomChatNtfyPkt.Msg, Msg, sizeof(roomChatNtfyPkt.Msg));
 		CopyMemory(roomChatNtfyPkt.UserID, UserID, sizeof(roomChatNtfyPkt.UserID));
-		SendToAllUser(sizeof(roomChatNtfyPkt), &roomChatNtfyPkt, connIndex, false);
+		SendToAllUser(sizeof(roomChatNtfyPkt), (char*)&roomChatNtfyPkt, connIndex, false);
 	}
 		
 		
 	std::function<void(UINT32, UINT32, char*)> SendPacketFunc;
 
 private:
-	void SendToAllUser(const UINT16 dataSize, void* pData, const INT32 passUserindex, bool exceptMe)
+	void SendToAllUser(const UINT16 dataSize, char* pData, const INT32 passUserindex, bool exceptMe)
 	{
 		for (auto pUser : m_UserList)
 		{

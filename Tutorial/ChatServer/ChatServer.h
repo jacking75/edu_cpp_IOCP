@@ -23,11 +23,15 @@ public:
 	virtual void OnConnect(const UINT32 clientIndex_) override 
 	{
 		printf("[OnConnect] 클라이언트: Index(%d)\n", clientIndex_);
+
+		//TODO User 객체 초기화 하기. 시스템 패킷을 보낸다.
 	}
 
 	virtual void OnClose(const UINT32 clientIndex_) override 
 	{
 		printf("[OnClose] 클라이언트: Index(%d)\n", clientIndex_);
+
+		//TODO 종료 처리하기. 시스템 패킷을 보낸다.
 	}
 
 	virtual void OnReceive(const UINT32 clientIndex_, const UINT32 size_, char* pData_) override  
@@ -64,7 +68,7 @@ public:
 
 		m_pRoomManager->Init(startRoomNummber, maxRoomCount, maxRoomUserCount);
 
-
+		//이 부분을 패킷 처리 부분으로 이동 시킨다.
 		mIsRunProcessThread = true;
 		mProcessThread = std::thread([this]() { ProcessPacket(); });
 
@@ -91,7 +95,7 @@ private:
 			auto packetData = DequePacketData();
 			if (packetData.PacketId != 0)
 			{
-				//SendMsg(packetData.SessionIndex, packetData.DataSize, packetData.pPacketData);
+				m_pPacketManager->ProcessRecvPacket(packetData.SessionIndex, packetData.PacketId, packetData.DataSize, packetData.pDataPtr);
 			}
 			else
 			{
@@ -117,6 +121,7 @@ private:
 
 		auto pUser = m_pUserManager->GetUserByConnIdx(userIndex);
 		auto packetData = pUser->GetPacket();		
+		packetData.SessionIndex = userIndex;
 		return packetData;
 	}
 

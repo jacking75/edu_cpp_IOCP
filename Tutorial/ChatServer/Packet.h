@@ -36,9 +36,10 @@ struct RawPacketData
 
 struct PacketInfo
 {
+	UINT32 SessionIndex = 0;
 	UINT16 PacketId = 0;
-	UINT16 BodySize = 0;
-	char* pBody = nullptr;
+	UINT16 DataSize = 0;
+	char* pDataPtr = nullptr;
 };
 
 enum class  PACKET_ID : UINT16
@@ -65,6 +66,8 @@ struct PACKET_HEADER
 	UINT16 PacketId;
 	UINT8 Type; //압축여부 암호화여부 등 속성을 알아내는 값
 };
+
+const UINT32 PACKET_HEADER_LENGTH = sizeof(PACKET_HEADER);
 
 //- 로그인 요청
 const int MAX_USER_ID_LEN = 20;

@@ -20,26 +20,24 @@ void PacketManager::Init(UserManager* pUserManager, RoomManager* pRoomManager)
 
 
 
-void PacketManager::ProcessRecvPacket(INT32 connectionIndex, char* pBuf, INT16 copySize) 
+void PacketManager::ProcessRecvPacket(const UINT32 connectionIndex_, const UINT16 packetId_, const UINT16 packetSize_, char* pPacket_)
 {
-	PACKET_HEADER* pHeader = reinterpret_cast<PACKET_HEADER*>(pBuf);
-
-	auto iter = m_RecvFuntionDictionary.find(pHeader->PacketId);
+	auto iter = m_RecvFuntionDictionary.find(packetId_);
 	if (iter != m_RecvFuntionDictionary.end())
 	{
-		(this->*(iter->second))(connectionIndex, pBuf, copySize);
+		(this->*(iter->second))(connectionIndex_, packetSize_, pPacket_);
 	}
 
 }
 		
-void PacketManager::ProcessLogin(const INT32 connIndex, char* pBuf, INT16 copySize) 
+void PacketManager::ProcessLogin(UINT32 connIndex, UINT16 packetSize_, char* pPacket_)
 { 
-	if (LOGIN_REQUEST_PACKET_SZIE != copySize)
+	if (LOGIN_REQUEST_PACKET_SZIE != packetSize_)
 	{
 		return;
 	}
 
-	auto pLoginReqPacket = reinterpret_cast<LOGIN_REQUEST_PACKET*>(pBuf);
+	auto pLoginReqPacket = reinterpret_cast<LOGIN_REQUEST_PACKET*>(pPacket_);
 
 	auto pUserID = pLoginReqPacket->UserID;
 	printf("requested user id = %s\n", pUserID);
@@ -77,11 +75,11 @@ void PacketManager::ProcessLogin(const INT32 connIndex, char* pBuf, INT16 copySi
 
 
 
-void PacketManager::ProcessEnterRoom(INT32 connIndex, char* pBuf, INT16 copySize) 
+void PacketManager::ProcessEnterRoom(UINT32 connIndex, UINT16 packetSize_, char* pPacket_)
 {
-	UNREFERENCED_PARAMETER(copySize);
+	UNREFERENCED_PARAMETER(packetSize_);
 
-	auto pRoomEnterReqPacket = reinterpret_cast<ROOM_ENTER_REQUEST_PACKET*>(pBuf);
+	auto pRoomEnterReqPacket = reinterpret_cast<ROOM_ENTER_REQUEST_PACKET*>(pPacket_);
 	auto pReqUser = m_pUserManager->GetUserByConnIdx(connIndex);
 
 	if (!pReqUser || pReqUser == nullptr) 
@@ -100,10 +98,10 @@ void PacketManager::ProcessEnterRoom(INT32 connIndex, char* pBuf, INT16 copySize
 }
 
 
-void PacketManager::ProcessLeaveRoom(INT32 connIndex, char* pBuf, INT16 copySize) 
+void PacketManager::ProcessLeaveRoom(UINT32 connIndex, UINT16 packetSize_, char* pPacket_)
 {
-	UNREFERENCED_PARAMETER(pBuf);
-	UNREFERENCED_PARAMETER(copySize);
+	UNREFERENCED_PARAMETER(packetSize_);
+	UNREFERENCED_PARAMETER(pPacket_);
 
 	ROOM_LEAVE_RESPONSE_PACKET roomLeaveResPacket;
 	roomLeaveResPacket.PacketId = (UINT16)PACKET_ID::ROOM_LEAVE_RESPONSE;
@@ -118,11 +116,11 @@ void PacketManager::ProcessLeaveRoom(INT32 connIndex, char* pBuf, INT16 copySize
 }
 
 
-void PacketManager::ProcessRoomChatMessage(INT32 connIndex, char* pBuf, INT16 copySize) 
+void PacketManager::ProcessRoomChatMessage(UINT32 connIndex, UINT16 packetSize_, char* pPacket_)
 {
-	UNREFERENCED_PARAMETER(copySize);
+	UNREFERENCED_PARAMETER(packetSize_);
 
-	auto pRoomChatReqPacketet = reinterpret_cast<ROOM_CHAT_REQUEST_PACKET*>(pBuf);
+	auto pRoomChatReqPacketet = reinterpret_cast<ROOM_CHAT_REQUEST_PACKET*>(pPacket_);
 		
 	ROOM_CHAT_RESPONSE_PACKET roomChatResPacket;
 	roomChatResPacket.PacketId = (UINT16)PACKET_ID::ROOM_CHAT_RESPONSE;
