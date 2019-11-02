@@ -40,7 +40,10 @@ private:
 
 	void ProcessUserConnect(UINT32 connIndex, UINT16 packetSize_, char* pPacket_);
 	void ProcessUserDisConnect(UINT32 connIndex, UINT16 packetSize_, char* pPacket_);
+	
 	void ProcessLogin(UINT32 connIndex, UINT16 packetSize_, char* pPacket_);
+	void ProcessLoginDBResult(UINT32 connIndex, UINT16 packetSize_, char* pPacket_);
+	
 	void ProcessEnterRoom(UINT32 connIndex, UINT16 packetSize_, char* pPacket_);
 	void ProcessLeaveRoom(UINT32 connIndex, UINT16 packetSize_, char* pPacket_);
 	void ProcessRoomChatMessage(UINT32 connIndex, UINT16 packetSize_, char* pPacket_);

@@ -52,19 +52,19 @@ public:
 		mRequestTask.push_back(task_);
 	}
 
-	std::tuple<RedisTask, bool> TakeResponseTask()
+	RedisTask TakeResponseTask()
 	{
 		std::lock_guard<std::mutex> guard(mResLock);
 
 		if (mResponseTask.empty())
 		{
-			return { RedisTask(), false };
+			return RedisTask();
 		}
 
 		auto task = mResponseTask.front();
 		mResponseTask.pop_front();
 
-		return { task, true };
+		return task;
 	}
 
 
@@ -90,8 +90,7 @@ private:
 		{
 			bool isIdle = true;
 
-			auto [task, result] = TakeRequestTask();
-			if (result)
+			if (auto task = TakeRequestTask(); task.TaskID != RedisTaskID::INVALID)
 			{
 				isIdle = false;
 
@@ -111,19 +110,19 @@ private:
 		}
 	}
 
-	std::tuple<RedisTask,bool> TakeRequestTask()
+	RedisTask TakeRequestTask()
 	{
 		std::lock_guard<std::mutex> guard(mReqLock);
 
 		if (mRequestTask.empty())
 		{
-			return { RedisTask(), false };
+			return RedisTask();
 		}
 
 		auto task = mRequestTask.front();
 		mRequestTask.pop_front();
 
-		return { task, true };
+		return task;
 	}
 
 	void PushResponse(RedisTask task_)

@@ -7,6 +7,8 @@
 
 enum class RedisTaskID : UINT16
 {
+	INVALID = 0,
+
 	REQUEST_LOGIN = 1001,
 	RESPONSE_LOGIN = 1002,
 };
@@ -15,14 +17,8 @@ enum class RedisTaskID : UINT16
 
 struct RedisTask
 {
-	/*RedisTask() = default;
-	~RedisTask()
-	{
-		
-	}*/
-
 	UINT32 UserIndex = 0;
-	RedisTaskID TaskID;
+	RedisTaskID TaskID = RedisTaskID::INVALID;
 	UINT16 DataSize = 0;
 	char* pData = nullptr;	
 

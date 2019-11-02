@@ -16,6 +16,7 @@ void PacketManager::Init(const UINT32 maxClient)
 	m_RecvFuntionDictionary[(int)PACKET_ID::SYS_USER_DISCONNECT] = &PacketManager::ProcessUserDisConnect;
 
 	m_RecvFuntionDictionary[(int)PACKET_ID::LOGIN_REQUEST] = &PacketManager::ProcessLogin;
+	m_RecvFuntionDictionary[(int)RedisTaskID::RESPONSE_LOGIN] = &PacketManager::ProcessLoginDBResult;
 	
 	m_RecvFuntionDictionary[(int)PACKET_ID::ROOM_ENTER_REQUEST] = &PacketManager::ProcessEnterRoom;
 	m_RecvFuntionDictionary[(int)PACKET_ID::ROOM_LEAVE_REQUEST] = &PacketManager::ProcessLeaveRoom;
@@ -90,6 +91,13 @@ void PacketManager::ProcessPacket()
 		{
 			isIdle = false;
 			ProcessRecvPacket(packetData.SessionIndex, packetData.PacketId, packetData.DataSize, packetData.pDataPtr);
+		}
+
+		if (auto task = mRedisMgr->TakeResponseTask(); task.TaskID != RedisTaskID::INVALID)
+		{
+			isIdle = false;
+			ProcessRecvPacket(task.UserIndex, (UINT16)RedisTaskID::INVALID, task.DataSize, task.pData);
+			task.Release();
 		}
 
 		if(isIdle)
@@ -220,6 +228,10 @@ void PacketManager::ProcessLogin(UINT32 connIndex, UINT16 packetSize_, char* pPa
 	SendPacketFunc(connIndex, sizeof(LOGIN_RESPONSE_PACKET), (char*)&loginResPacket);
 }
 
+void PacketManager::ProcessLoginDBResult(UINT32 connIndex, UINT16 packetSize_, char* pPacket_)
+{
+	printf("ProcessLoginDBResult. UserIndex: %d\n", connIndex);
+}
 
 
 void PacketManager::ProcessEnterRoom(UINT32 connIndex, UINT16 packetSize_, char* pPacket_)
