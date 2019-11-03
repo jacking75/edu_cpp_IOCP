@@ -5,22 +5,22 @@
 
 struct RawPacketData
 {
-	UINT32 SessionIndex = 0;
+	UINT32 ClientIndex = 0;
 	UINT32 DataSize = 0;
 	char* pPacketData = nullptr;
 
 	void Set(RawPacketData& vlaue)
 	{
-		SessionIndex = vlaue.SessionIndex;
+		ClientIndex = vlaue.ClientIndex;
 		DataSize = vlaue.DataSize;
 
 		pPacketData = new char[vlaue.DataSize];
 		CopyMemory(pPacketData, vlaue.pPacketData, vlaue.DataSize);
 	}
 
-	void Set(UINT32 sessionIndex_, UINT32 dataSize_, char* pData)
+	void Set(UINT32 clientIndex_, UINT32 dataSize_, char* pData)
 	{
-		SessionIndex = sessionIndex_;
+		ClientIndex = clientIndex_;
 		DataSize = dataSize_;
 
 		pPacketData = new char[dataSize_];
@@ -36,7 +36,7 @@ struct RawPacketData
 
 struct PacketInfo
 {
-	UINT32 SessionIndex = 0;
+	UINT32 ClientIndex = 0;
 	UINT16 PacketId = 0;
 	UINT16 DataSize = 0;
 	char* pDataPtr = nullptr;

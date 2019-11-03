@@ -44,9 +44,9 @@ public:
 
 	void Run(const UINT32 maxClient)
 	{
-		auto sendPacketFunc = [&](UINT32 connectionIndex, UINT16 packetSize, char* pSendPacket)
+		auto sendPacketFunc = [&](UINT32 clientIndex_, UINT16 packetSize, char* pSendPacket)
 		{
-			SendMsg(connectionIndex, packetSize, pSendPacket);
+			SendMsg(clientIndex_, packetSize, pSendPacket);
 		};
 
 		m_pPacketManager = std::make_unique<PacketManager>();

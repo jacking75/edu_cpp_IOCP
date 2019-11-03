@@ -13,77 +13,77 @@ public:
 	Room() = default;
 	~Room() = default;
 
-	INT32 GetMaxUserCount() { return m_MaxUserCount; }
+	INT32 GetMaxUserCount() { return mMaxUserCount; }
 
-	INT32 GetCurrentUserCount() { return m_CurrentUserCount; }
+	INT32 GetCurrentUserCount() { return mCurrentUserCount; }
 
-	INT32 GetRoomNumber() { return m_RoomNum; }
+	INT32 GetRoomNumber() { return mRoomNum; }
 
 	
-	void Init(const INT32 roomNum, const INT32 maxUserCount)
+	void Init(const INT32 roomNum_, const INT32 maxUserCount_)
 	{
-		m_RoomNum = roomNum;
-		m_MaxUserCount = maxUserCount;
+		mRoomNum = roomNum_;
+		mMaxUserCount = maxUserCount_;
 	}
 
-	UINT16 EnterUser(User* pUser)
+	UINT16 EnterUser(User* user_)
 	{
-		if (m_CurrentUserCount >= m_MaxUserCount)
+		if (mCurrentUserCount >= mMaxUserCount)
 		{
 			return (UINT16)ERROR_CODE::ENTER_ROOM_FULL_USER;
 		}
 
-		m_UserList.push_back(pUser);
-		++m_CurrentUserCount;
+		mUserList.push_back(user_);
+		++mCurrentUserCount;
 
-		pUser->EnterRoom(m_RoomNum);
+		user_->EnterRoom(mRoomNum);
 		return (UINT16)ERROR_CODE::NONE;
 	}
 		
-	void LeaveUser(User* pLeaveUser)
+	void LeaveUser(User* leaveUser_)
 	{
-		m_UserList.remove_if([leaveUserId = pLeaveUser->GetUserId()](User* pUser) {
+		mUserList.remove_if([leaveUserId = leaveUser_->GetUserId()](User* pUser) {
 			return leaveUserId == pUser->GetUserId();
 		});
 	}
 						
-	void NotifyChat(INT32 connIndex, const char* UserID, const char* Msg)
+	void NotifyChat(INT32 clientIndex_, const char* userID_, const char* msg_)
 	{
 		ROOM_CHAT_NOTIFY_PACKET roomChatNtfyPkt;
 		roomChatNtfyPkt.PacketId = (UINT16)PACKET_ID::ROOM_CHAT_NOTIFY;
 		roomChatNtfyPkt.PacketLength = sizeof(roomChatNtfyPkt);
 
-		CopyMemory(roomChatNtfyPkt.Msg, Msg, sizeof(roomChatNtfyPkt.Msg));
-		CopyMemory(roomChatNtfyPkt.UserID, UserID, sizeof(roomChatNtfyPkt.UserID));
-		SendToAllUser(sizeof(roomChatNtfyPkt), (char*)&roomChatNtfyPkt, connIndex, false);
+		CopyMemory(roomChatNtfyPkt.Msg, msg_, sizeof(roomChatNtfyPkt.Msg));
+		CopyMemory(roomChatNtfyPkt.UserID, userID_, sizeof(roomChatNtfyPkt.UserID));
+		SendToAllUser(sizeof(roomChatNtfyPkt), (char*)&roomChatNtfyPkt, clientIndex_, false);
 	}
 		
 		
 	std::function<void(UINT32, UINT32, char*)> SendPacketFunc;
 
 private:
-	void SendToAllUser(const UINT16 dataSize, char* pData, const INT32 passUserindex, bool exceptMe)
+	void SendToAllUser(const UINT16 dataSize_, char* data_, const INT32 passUserIndex_, bool exceptMe)
 	{
-		for (auto pUser : m_UserList)
+		for (auto pUser : mUserList)
 		{
 			if (pUser == nullptr) {
 				continue;
 			}
 
-			if (exceptMe && pUser->GetNetConnIdx() == passUserindex) {
+			if (exceptMe && pUser->GetNetConnIdx() == passUserIndex_) {
 				continue;
 			}
 
-			SendPacketFunc((UINT32)pUser->GetNetConnIdx(), (UINT32)dataSize, pData);
+			SendPacketFunc((UINT32)pUser->GetNetConnIdx(), (UINT32)dataSize_, data_);
 		}
 	}
 
 
-	INT32 m_RoomNum = -1;
+	INT32 mRoomNum = -1;
 
-	std::list<User*> m_UserList;
+	std::list<User*> mUserList;
 		
-	INT32 m_MaxUserCount = 0;
+	INT32 mMaxUserCount = 0;
 
-	UINT16 m_CurrentUserCount = 0;
+	UINT16 mCurrentUserCount = 0;
 };

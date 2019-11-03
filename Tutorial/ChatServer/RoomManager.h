@@ -7,58 +7,58 @@ public:
 	RoomManager() = default;
 	~RoomManager() = default;
 
-	void Init(const INT32 beginRoomNumber, const INT32 maxRoomCount, const INT32 maxRoomUserCount)
+	void Init(const INT32 beginRoomNumber_, const INT32 maxRoomCount_, const INT32 maxRoomUserCount_)
 	{
-		m_BeginRoomNumber = beginRoomNumber;
-		m_MaxRoomCount = maxRoomCount;
-		m_EndRoomNumber = beginRoomNumber + maxRoomCount;
+		mBeginRoomNumber = beginRoomNumber_;
+		mMaxRoomCount = maxRoomCount_;
+		mEndRoomNumber = beginRoomNumber_ + maxRoomCount_;
 
-		m_RoomList = std::vector<Room*>(maxRoomCount);
+		mRoomList = std::vector<Room*>(maxRoomCount_);
 
-		for (auto i = 0; i < maxRoomCount; i++)
+		for (auto i = 0; i < maxRoomCount_; i++)
 		{
-			m_RoomList[i] = new Room();
-			m_RoomList[i]->SendPacketFunc = SendPacketFunc;
-			m_RoomList[i]->Init((i+ beginRoomNumber), maxRoomUserCount);
+			mRoomList[i] = new Room();
+			mRoomList[i]->SendPacketFunc = SendPacketFunc;
+			mRoomList[i]->Init((i+ beginRoomNumber_), maxRoomUserCount_);
 		}
 	}
 
-	UINT GetMaxRoomCount() { return m_MaxRoomCount; }
+	UINT GetMaxRoomCount() { return mMaxRoomCount; }
 		
-	UINT16 EnterUser(INT32 roomNumber, User* pUser)
+	UINT16 EnterUser(INT32 roomNumber_, User* user_)
 	{
-		auto pRoom = GetRoomByNumber(roomNumber);
+		auto pRoom = GetRoomByNumber(roomNumber_);
 		if (pRoom == nullptr)
 		{
 			return (UINT16)ERROR_CODE::ROOM_INVALID_INDEX;
 		}
 
 
-		return pRoom->EnterUser(pUser);
+		return pRoom->EnterUser(user_);
 	}
 		
-	INT16 LeaveUser(INT32 roomNumber, User* pUser)
+	INT16 LeaveUser(INT32 roomNumber_, User* user_)
 	{
-		auto pRoom = GetRoomByNumber(roomNumber);
+		auto pRoom = GetRoomByNumber(roomNumber_);
 		if (pRoom == nullptr)
 		{
 			return (INT16)ERROR_CODE::ROOM_INVALID_INDEX;
 		}
 			
-		pUser->SetDomainState(User::DOMAIN_STATE::LOGIN);
-		pRoom->LeaveUser(pUser);
+		user_->SetDomainState(User::DOMAIN_STATE::LOGIN);
+		pRoom->LeaveUser(user_);
 		return (INT16)ERROR_CODE::NONE;
 	}
 
-	Room* GetRoomByNumber(INT32 number) 
+	Room* GetRoomByNumber(INT32 number_) 
 	{ 
-		if (number < m_BeginRoomNumber || number >= m_EndRoomNumber)
+		if (number_ < mBeginRoomNumber || number_ >= mEndRoomNumber)
 		{
 			return nullptr;
 		}
 
-		auto index = (number - m_BeginRoomNumber);
-		return m_RoomList[index]; 
+		auto index = (number_ - mBeginRoomNumber);
+		return mRoomList[index]; 
 	} 
 
 		
@@ -66,8 +66,8 @@ public:
 		
 
 private:
-	std::vector<Room*> m_RoomList;
-	INT32 m_BeginRoomNumber = 0;
-	INT32 m_EndRoomNumber = 0;
-	INT32 m_MaxRoomCount = 0;
+	std::vector<Room*> mRoomList;
+	INT32 mBeginRoomNumber = 0;
+	INT32 mEndRoomNumber = 0;
+	INT32 mMaxRoomCount = 0;
 };

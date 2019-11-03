@@ -47,11 +47,11 @@ public:
 	}
 		
 	//서버의 주소정보를 소켓과 연결시키고 접속 요청을 받기 위해 소켓을 등록하는 함수
-	bool BindandListen(int nBindPort)
+	bool BindandListen(int bindPort_)
 	{
 		SOCKADDR_IN		stServerAddr;
 		stServerAddr.sin_family = AF_INET;
-		stServerAddr.sin_port = htons(nBindPort); //서버 포트를 설정한다.		
+		stServerAddr.sin_port = htons(bindPort_); //서버 포트를 설정한다.		
 		//어떤 주소에서 들어오는 접속이라도 받아들이겠다.
 		//보통 서버라면 이렇게 설정한다. 만약 한 아이피에서만 접속을 받고 싶다면
 		//그 주소를 inet_addr함수를 이용해 넣으면 된다.
@@ -94,9 +94,9 @@ public:
 	}
 
 	//접속 요청을 수락하고 메세지를 받아서 처리하는 함수
-	bool StartServer(const UINT32 maxClientCount)
+	bool StartServer(const UINT32 maxClientCount_)
 	{
-		CreateClient(maxClientCount);
+		CreateClient(maxClientCount_);
 		
 		//접속된 클라이언트 주소 정보를 저장할 구조체
 		bool bRet = CreateWokerThread();
@@ -137,9 +137,9 @@ public:
 		}		
 	}
 
-	bool SendMsg(const UINT32 sessionIndex_, const UINT32 dataSize_, char* pData)
+	bool SendMsg(const UINT32 clientIndex_, const UINT32 dataSize_, char* pData)
 	{
-		auto pClient = GetClientInfo(sessionIndex_);
+		auto pClient = GetClientInfo(clientIndex_);
 		return pClient->SendMsg(dataSize_, pData);
 	}
 	
@@ -150,9 +150,9 @@ public:
 	virtual void OnReceive(const UINT32 clientIndex_, const UINT32 size_, char* pData_) {}
 
 private:
-	void CreateClient(const UINT32 maxClientCount)
+	void CreateClient(const UINT32 maxClientCount_)
 	{
-		for (UINT32 i = 0; i < maxClientCount; ++i)
+		for (UINT32 i = 0; i < maxClientCount_; ++i)
 		{
 			auto client = new stClientInfo;
 			client->Init(i, mIOCPHandle);
@@ -188,9 +188,9 @@ private:
 		return nullptr;
 	}
 
-	stClientInfo* GetClientInfo(const UINT32 sessionIndex)
+	stClientInfo* GetClientInfo(const UINT32 clientIndex_)
 	{
-		return mClientInfos[sessionIndex];		
+		return mClientInfos[clientIndex_];		
 	}
 
 	//accept요청을 처리하는 쓰레드 생성
@@ -313,16 +313,16 @@ private:
 	}
 	
 	//소켓의 연결을 종료 시킨다.
-	void CloseSocket(stClientInfo* pClientInfo, bool bIsForce = false)
+	void CloseSocket(stClientInfo* clientInfo_, bool isForce_ = false)
 	{
-		if (pClientInfo->IsConnectd() == false)
+		if (clientInfo_->IsConnectd() == false)
 		{
 			return;
 		}
 
-		auto clientIndex = pClientInfo->GetIndex();
+		auto clientIndex = clientInfo_->GetIndex();
 
-		pClientInfo->Close(bIsForce);
+		clientInfo_->Close(isForce_);
 		
 		OnClose(clientIndex);
 	}

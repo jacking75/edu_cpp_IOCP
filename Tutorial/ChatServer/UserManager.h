@@ -10,47 +10,47 @@ public:
 	UserManager() = default;
 	~UserManager() = default;
 
-	void Init(const INT32 maxUserCount)
+	void Init(const INT32 maxUserCount_)
 	{
-		m_MaxUserCnt = maxUserCount;
-		UserObjPool = std::vector<User*>(m_MaxUserCnt);
+		mMaxUserCnt = maxUserCount_;
+		mUserObjPool = std::vector<User*>(mMaxUserCnt);
 
-		for (auto i = 0; i < m_MaxUserCnt; i++)
+		for (auto i = 0; i < mMaxUserCnt; i++)
 		{
-			UserObjPool[i] = new User();
-			UserObjPool[i]->Init(i);
+			mUserObjPool[i] = new User();
+			mUserObjPool[i]->Init(i);
 		}
 	}
 
-	INT32 GetCurrentUserCnt() { return m_CurrentUserCnt; }
+	INT32 GetCurrentUserCnt() { return mCurrentUserCnt; }
 
-	INT32 GetMaxUserCnt() { return m_MaxUserCnt; }
+	INT32 GetMaxUserCnt() { return mMaxUserCnt; }
 		
-	void IncreaseUserCnt() { m_CurrentUserCnt++; }
+	void IncreaseUserCnt() { mCurrentUserCnt++; }
 		
 	void DecreaseUserCnt() 
 	{
-		if (m_CurrentUserCnt > 0) 
+		if (mCurrentUserCnt > 0) 
 		{
-			m_CurrentUserCnt--;
+			mCurrentUserCnt--;
 		}
 	}
 
-	ERROR_CODE AddUser(char* userID, int conn_idx)
+	ERROR_CODE AddUser(char* userID_, int clientIndex_)
 	{
 		//TODO 최흥배 유저 중복 조사하기
 
-		auto user_idx = conn_idx;
+		auto user_idx = clientIndex_;
 
-		UserObjPool[user_idx]->SetLogin(userID);
-		UserDictionary.insert(std::pair< char*, int>(userID, conn_idx));
+		mUserObjPool[user_idx]->SetLogin(userID_);
+		mUserIDDictionary.insert(std::pair< char*, int>(userID_, clientIndex_));
 
 		return ERROR_CODE::NONE;
 	}
 		
-	INT32 FindUserIndexByID(char* userID)
+	INT32 FindUserIndexByID(char* userID_)
 	{
-		if (auto res = UserDictionary.find(userID); res != UserDictionary.end())
+		if (auto res = mUserIDDictionary.find(userID_); res != mUserIDDictionary.end())
 		{
 			return (*res).second;
 		}
@@ -58,22 +58,22 @@ public:
 		return -1;
 	}
 		
-	void DeleteUserInfo(User* deleteUser)
+	void DeleteUserInfo(User* user_)
 	{
-		UserDictionary.erase(deleteUser->GetUserId());
-		deleteUser->Clear();
+		mUserIDDictionary.erase(user_->GetUserId());
+		user_->Clear();
 	}
 
-	User* GetUserByConnIdx(INT32 conn_idx)
+	User* GetUserByConnIdx(INT32 clientIndex_)
 	{
-		return UserObjPool[conn_idx];
+		return mUserObjPool[clientIndex_];
 	}
 
 
 private:
-	INT32 m_MaxUserCnt = 0;
-	INT32 m_CurrentUserCnt = 0;
+	INT32 mMaxUserCnt = 0;
+	INT32 mCurrentUserCnt = 0;
 
-	std::vector<User*> UserObjPool; //vector로
-	std::unordered_map<std::string, int> UserDictionary;
+	std::vector<User*> mUserObjPool; //vector로
+	std::unordered_map<std::string, int> mUserIDDictionary;
 };

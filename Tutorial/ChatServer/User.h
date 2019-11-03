@@ -21,58 +21,58 @@ public:
 
 	void Init(const INT32 index)
 	{
-		m_Index = index;
+		mIndex = index;
 		mPakcetDataBuffer = new char[PACKET_DATA_BUFFER_SIZE];
 	}
 
 	void Clear()
 	{
-		m_RoomIndex = -1;
-		m_UserId = "";
-		m_IsConfirm = false;
-		m_CurDomainState = DOMAIN_STATE::NONE;
+		mRoomIndex = -1;
+		mUserID = "";
+		mIsConfirm = false;
+		mCurDomainState = DOMAIN_STATE::NONE;
 
 		mPakcetDataBufferWPos = 0;
 		mPakcetDataBufferRPos = 0;
 	}
 
-	int SetLogin(char* login_id)
+	int SetLogin(char* userID_)
 	{
-		m_CurDomainState = DOMAIN_STATE::LOGIN;
-		m_UserId = login_id;
+		mCurDomainState = DOMAIN_STATE::LOGIN;
+		mUserID = userID_;
 
 		return 0;
 	}
 		
-	void EnterRoom(INT32 roomIndex)
+	void EnterRoom(INT32 roomIndex_)
 	{
-		m_RoomIndex = roomIndex;
-		m_CurDomainState = DOMAIN_STATE::ROOM;
+		mRoomIndex = roomIndex_;
+		mCurDomainState = DOMAIN_STATE::ROOM;
 	}
 		
-	void SetDomainState(DOMAIN_STATE val) { m_CurDomainState = val; }
+	void SetDomainState(DOMAIN_STATE value_) { mCurDomainState = value_; }
 
 	INT32 GetCurrentRoom() 
 	{
-		return m_RoomIndex;
+		return mRoomIndex;
 	}
 
 	INT32 GetNetConnIdx() 
 	{
-		return m_Index;
+		return mIndex;
 	}
 
 	std::string GetUserId() const
 	{
-		return  m_UserId;
+		return  mUserID;
 	}
 
 	DOMAIN_STATE GetDomainState() 
 	{
-		return m_CurDomainState;
+		return mCurDomainState;
 	}
 				
-	void SetPacketData(const UINT32 dataSize_, char* pData)
+	void SetPacketData(const UINT32 dataSize_, char* pData_)
 	{
 		if ((mPakcetDataBufferWPos + dataSize_) >= PACKET_DATA_BUFFER_SIZE)
 		{
@@ -91,7 +91,7 @@ public:
 			mPakcetDataBufferRPos = 0;
 		}
 
-		CopyMemory(&mPakcetDataBuffer[mPakcetDataBufferWPos], pData, dataSize_);
+		CopyMemory(&mPakcetDataBuffer[mPakcetDataBufferWPos], pData_, dataSize_);
 		mPakcetDataBufferWPos += dataSize_;
 	}
 
@@ -127,15 +127,15 @@ public:
 
 
 private:
-	INT32 m_RoomIndex = -1;
+	INT32 mIndex = -1;
 
-	std::string m_UserId;
-	bool m_IsConfirm = false;
-	std::string AuthToken;
+	INT32 mRoomIndex = -1;
 
-	INT32 m_Index = -1;
-
-	DOMAIN_STATE m_CurDomainState = DOMAIN_STATE::NONE;		
+	std::string mUserID;
+	bool mIsConfirm = false;
+	std::string mAuthToken;
+	
+	DOMAIN_STATE mCurDomainState = DOMAIN_STATE::NONE;		
 
 	UINT32 mPakcetDataBufferWPos = 0;
 	UINT32 mPakcetDataBufferRPos = 0;

@@ -10,17 +10,17 @@
 
 void PacketManager::Init(const UINT32 maxClient)
 {
-	m_RecvFuntionDictionary = std::unordered_map<int, PROCESS_RECV_PACKET_FUNCTION>();
+	mRecvFuntionDictionary = std::unordered_map<int, PROCESS_RECV_PACKET_FUNCTION>();
 
-	m_RecvFuntionDictionary[(int)PACKET_ID::SYS_USER_CONNECT] = &PacketManager::ProcessUserConnect;
-	m_RecvFuntionDictionary[(int)PACKET_ID::SYS_USER_DISCONNECT] = &PacketManager::ProcessUserDisConnect;
+	mRecvFuntionDictionary[(int)PACKET_ID::SYS_USER_CONNECT] = &PacketManager::ProcessUserConnect;
+	mRecvFuntionDictionary[(int)PACKET_ID::SYS_USER_DISCONNECT] = &PacketManager::ProcessUserDisConnect;
 
-	m_RecvFuntionDictionary[(int)PACKET_ID::LOGIN_REQUEST] = &PacketManager::ProcessLogin;
-	m_RecvFuntionDictionary[(int)RedisTaskID::RESPONSE_LOGIN] = &PacketManager::ProcessLoginDBResult;
+	mRecvFuntionDictionary[(int)PACKET_ID::LOGIN_REQUEST] = &PacketManager::ProcessLogin;
+	mRecvFuntionDictionary[(int)RedisTaskID::RESPONSE_LOGIN] = &PacketManager::ProcessLoginDBResult;
 	
-	m_RecvFuntionDictionary[(int)PACKET_ID::ROOM_ENTER_REQUEST] = &PacketManager::ProcessEnterRoom;
-	m_RecvFuntionDictionary[(int)PACKET_ID::ROOM_LEAVE_REQUEST] = &PacketManager::ProcessLeaveRoom;
-	m_RecvFuntionDictionary[(int)PACKET_ID::ROOM_CHAT_REQUEST] = &PacketManager::ProcessRoomChatMessage;
+	mRecvFuntionDictionary[(int)PACKET_ID::ROOM_ENTER_REQUEST] = &PacketManager::ProcessEnterRoom;
+	mRecvFuntionDictionary[(int)PACKET_ID::ROOM_LEAVE_REQUEST] = &PacketManager::ProcessLeaveRoom;
+	mRecvFuntionDictionary[(int)PACKET_ID::ROOM_CHAT_REQUEST] = &PacketManager::ProcessRoomChatMessage;
 				
 	CreateCompent(maxClient);
 
@@ -29,16 +29,16 @@ void PacketManager::Init(const UINT32 maxClient)
 
 void PacketManager::CreateCompent(const UINT32 maxClient)
 {
-	m_pUserManager = new UserManager;
-	m_pUserManager->Init(maxClient);
+	mUserManager = new UserManager;
+	mUserManager->Init(maxClient);
 
 		
 	UINT32 startRoomNummber = 0;
 	UINT32 maxRoomCount = 10;
 	UINT32 maxRoomUserCount = 4;
-	m_pRoomManager = new RoomManager;
-	m_pRoomManager->SendPacketFunc = SendPacketFunc;
-	m_pRoomManager->Init(startRoomNummber, maxRoomCount, maxRoomUserCount);
+	mRoomManager = new RoomManager;
+	mRoomManager->SendPacketFunc = SendPacketFunc;
+	mRoomManager->Init(startRoomNummber, maxRoomCount, maxRoomUserCount);
 }
 
 bool PacketManager::Run()
@@ -69,7 +69,7 @@ void PacketManager::End()
 
 void PacketManager::ReceivePacketData(const UINT32 clientIndex_, const UINT32 size_, char* pData_)
 {
-	auto pUser = m_pUserManager->GetUserByConnIdx(clientIndex_);
+	auto pUser = mUserManager->GetUserByConnIdx(clientIndex_);
 	pUser->SetPacketData(size_, pData_);
 
 	EnqueuePacketData(clientIndex_);
@@ -84,13 +84,13 @@ void PacketManager::ProcessPacket()
 		if (auto packetData = DequePacketData(); packetData.PacketId > (UINT16)PACKET_ID::SYS_END)
 		{
 			isIdle = false;
-			ProcessRecvPacket(packetData.SessionIndex, packetData.PacketId, packetData.DataSize, packetData.pDataPtr);
+			ProcessRecvPacket(packetData.ClientIndex, packetData.PacketId, packetData.DataSize, packetData.pDataPtr);
 		}
 
 		if (auto packetData = DequeSystemPacketData(); packetData.PacketId != 0)
 		{
 			isIdle = false;
-			ProcessRecvPacket(packetData.SessionIndex, packetData.PacketId, packetData.DataSize, packetData.pDataPtr);
+			ProcessRecvPacket(packetData.ClientIndex, packetData.PacketId, packetData.DataSize, packetData.pDataPtr);
 		}
 
 		if (auto task = mRedisMgr->TakeResponseTask(); task.TaskID != RedisTaskID::INVALID)
@@ -128,9 +128,9 @@ PacketInfo PacketManager::DequePacketData()
 		mInComingPacketUserIndex.pop_front();
 	}
 
-	auto pUser = m_pUserManager->GetUserByConnIdx(userIndex);
+	auto pUser = mUserManager->GetUserByConnIdx(userIndex);
 	auto packetData = pUser->GetPacket();
-	packetData.SessionIndex = userIndex;
+	packetData.ClientIndex = userIndex;
 	return packetData;
 }
 
@@ -157,8 +157,8 @@ PacketInfo PacketManager::DequeSystemPacketData()
 
 void PacketManager::ProcessRecvPacket(const UINT32 connectionIndex_, const UINT16 packetId_, const UINT16 packetSize_, char* pPacket_)
 {
-	auto iter = m_RecvFuntionDictionary.find(packetId_);
-	if (iter != m_RecvFuntionDictionary.end())
+	auto iter = mRecvFuntionDictionary.find(packetId_);
+	if (iter != mRecvFuntionDictionary.end())
 	{
 		(this->*(iter->second))(connectionIndex_, packetSize_, pPacket_);
 	}
@@ -168,7 +168,7 @@ void PacketManager::ProcessRecvPacket(const UINT32 connectionIndex_, const UINT1
 
 void PacketManager::ProcessUserConnect(UINT32 connIndex, UINT16 packetSize_, char* pPacket_)
 {
-	auto pUser = m_pUserManager->GetUserByConnIdx(connIndex);
+	auto pUser = mUserManager->GetUserByConnIdx(connIndex);
 	pUser->Clear();
 }
 
@@ -193,7 +193,7 @@ void PacketManager::ProcessLogin(UINT32 connIndex, UINT16 packetSize_, char* pPa
 	loginResPacket.PacketId = (UINT16)PACKET_ID::LOGIN_RESPONSE;
 	loginResPacket.PacketLength = sizeof(LOGIN_RESPONSE_PACKET);
 
-	if (m_pUserManager->GetCurrentUserCnt() >= m_pUserManager->GetMaxUserCnt()) 
+	if (mUserManager->GetCurrentUserCnt() >= mUserManager->GetMaxUserCnt()) 
 	{ 
 		//접속자수가 최대수를 차지해서 접속불가
 		loginResPacket.Result = (UINT16)ERROR_CODE::LOGIN_USER_USED_ALL_OBJ;
@@ -202,7 +202,7 @@ void PacketManager::ProcessLogin(UINT32 connIndex, UINT16 packetSize_, char* pPa
 	}
 
 	//여기에서 이미 접속된 유저인지 확인하고, 접속된 유저라면 실패한다.
-	if (m_pUserManager->FindUserIndexByID(pUserID) == -1) 
+	if (mUserManager->FindUserIndexByID(pUserID) == -1) 
 	{ 
 		RedisLoginReq dbReq;
 		CopyMemory(dbReq.UserID, pLoginReqPacket->UserID, (MAX_USER_ID_LEN + 1));
@@ -239,7 +239,7 @@ void PacketManager::ProcessEnterRoom(UINT32 connIndex, UINT16 packetSize_, char*
 	UNREFERENCED_PARAMETER(packetSize_);
 
 	auto pRoomEnterReqPacket = reinterpret_cast<ROOM_ENTER_REQUEST_PACKET*>(pPacket_);
-	auto pReqUser = m_pUserManager->GetUserByConnIdx(connIndex);
+	auto pReqUser = mUserManager->GetUserByConnIdx(connIndex);
 
 	if (!pReqUser || pReqUser == nullptr) 
 	{
@@ -250,7 +250,7 @@ void PacketManager::ProcessEnterRoom(UINT32 connIndex, UINT16 packetSize_, char*
 	roomEnterResPacket.PacketId = (UINT16)PACKET_ID::ROOM_ENTER_RESPONSE;
 	roomEnterResPacket.PacketLength = sizeof(ROOM_ENTER_RESPONSE_PACKET);
 				
-	roomEnterResPacket.Result = m_pRoomManager->EnterUser(pRoomEnterReqPacket->RoomNumber, pReqUser);
+	roomEnterResPacket.Result = mRoomManager->EnterUser(pRoomEnterReqPacket->RoomNumber, pReqUser);
 
 	SendPacketFunc(connIndex, sizeof(ROOM_ENTER_RESPONSE_PACKET), (char*)&roomEnterResPacket);
 	printf("Response Packet Sended");
@@ -266,11 +266,11 @@ void PacketManager::ProcessLeaveRoom(UINT32 connIndex, UINT16 packetSize_, char*
 	roomLeaveResPacket.PacketId = (UINT16)PACKET_ID::ROOM_LEAVE_RESPONSE;
 	roomLeaveResPacket.PacketLength = sizeof(ROOM_LEAVE_RESPONSE_PACKET);
 
-	auto reqUser = m_pUserManager->GetUserByConnIdx(connIndex);
+	auto reqUser = mUserManager->GetUserByConnIdx(connIndex);
 	auto roomNum = reqUser->GetCurrentRoom();
 				
 	//TODO Room안의 UserList객체의 값 확인하기
-	roomLeaveResPacket.Result = m_pRoomManager->LeaveUser(roomNum, reqUser);
+	roomLeaveResPacket.Result = mRoomManager->LeaveUser(roomNum, reqUser);
 	SendPacketFunc(connIndex, sizeof(ROOM_LEAVE_RESPONSE_PACKET), (char*)&roomLeaveResPacket);
 }
 
@@ -286,10 +286,10 @@ void PacketManager::ProcessRoomChatMessage(UINT32 connIndex, UINT16 packetSize_,
 	roomChatResPacket.PacketLength = sizeof(ROOM_CHAT_RESPONSE_PACKET);
 	roomChatResPacket.Result = (INT16)ERROR_CODE::NONE;
 
-	auto reqUser = m_pUserManager->GetUserByConnIdx(connIndex);
+	auto reqUser = mUserManager->GetUserByConnIdx(connIndex);
 	auto roomNum = reqUser->GetCurrentRoom();
 				
-	auto pRoom = m_pRoomManager->GetRoomByNumber(roomNum);
+	auto pRoom = mRoomManager->GetRoomByNumber(roomNum);
 	if (pRoom == nullptr)
 	{
 		roomChatResPacket.Result = (INT16)ERROR_CODE::CHAT_ROOM_INVALID_ROOM_NUMBER;
@@ -304,16 +304,16 @@ void PacketManager::ProcessRoomChatMessage(UINT32 connIndex, UINT16 packetSize_,
 
 void PacketManager::ClearConnectionInfo(INT32 connIndex) 
 {
-	auto pReqUser = m_pUserManager->GetUserByConnIdx(connIndex);
+	auto pReqUser = mUserManager->GetUserByConnIdx(connIndex);
 
 	if (pReqUser->GetDomainState() == User::DOMAIN_STATE::ROOM) 
 	{
 		auto roomNum = pReqUser->GetCurrentRoom();
-		m_pRoomManager->LeaveUser(roomNum, pReqUser);
+		mRoomManager->LeaveUser(roomNum, pReqUser);
 	}
 
 	if (pReqUser->GetDomainState() != User::DOMAIN_STATE::NONE) 
 	{
-		m_pUserManager->DeleteUserInfo(pReqUser);
+		mUserManager->DeleteUserInfo(pReqUser);
 	}
 }
