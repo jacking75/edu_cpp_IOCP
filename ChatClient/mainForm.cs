@@ -372,24 +372,6 @@ namespace csharp_test_client
             //PostSendPacket(PACKET_ID.PACKET_ID_ROOM_RELAY_REQ, bodyData);
             //DevLog.Write($"방 릴레이 요청");
         }
-
-        // 로비 리스트 요청
-        private void button3_Click(object sender, EventArgs e)
-        {
-            PostSendPacket(PACKET_ID.LOBBY_LIST_REQ, null);
-            DevLog.Write($"방 릴레이 요청");
-        }
-
-        // 로비 입장 요청
-        private void button4_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        // 로비 나가기 요청
-        private void button5_Click(object sender, EventArgs e)
-        {
-
-        }
+               
     }
 }

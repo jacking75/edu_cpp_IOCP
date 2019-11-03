@@ -5,7 +5,6 @@
 
 #include <functional>
 
-#define MAX_USER_ID_LEN  20
 
 class Room 
 {

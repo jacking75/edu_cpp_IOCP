@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RedisTaskDefine.h"
+#include "ErrorCode.h"
 
 #include "../thirdparty/CRedisConn.h"
 #include <vector>
@@ -86,6 +87,8 @@ private:
 
 	void TaskProcessThread()
 	{
+		printf("Redis 스레드 시작...\n");
+
 		while (mIsTaskRun)
 		{
 			bool isIdle = true;
@@ -96,7 +99,30 @@ private:
 
 				if (task.TaskID == RedisTaskID::REQUEST_LOGIN)
 				{
+					auto pRequest = (RedisLoginReq*)task.pData;
+					
+					RedisLoginRes bodyData;
+					bodyData.Result = (UINT16)ERROR_CODE::LOGIN_USER_INVALID_PW;
 
+					std::string value;
+					if (mConn.get(pRequest->UserID, value))
+					{
+						bodyData.Result = (UINT16)ERROR_CODE::NONE;
+
+						if (value.compare(pRequest->UserPW) == 0)
+						{
+							bodyData.Result = (UINT16)ERROR_CODE::NONE;
+						}
+					}
+					
+					RedisTask resTask;
+					resTask.UserIndex = task.UserIndex;
+					resTask.TaskID = RedisTaskID::RESPONSE_LOGIN;
+					resTask.DataSize = sizeof(RedisLoginRes);
+					resTask.pData = new char[resTask.DataSize];
+					CopyMemory(resTask.pData, (char*)&bodyData, resTask.DataSize);
+
+					PushResponse(resTask);
 				}
 				
 				task.Release();
@@ -108,6 +134,8 @@ private:
 				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
 		}
+
+		printf("Redis 스레드 종료\n");
 	}
 
 	RedisTask TakeRequestTask()

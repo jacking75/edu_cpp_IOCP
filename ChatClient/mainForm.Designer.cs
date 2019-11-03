@@ -57,14 +57,8 @@
             this.btn_RoomEnter = new System.Windows.Forms.Button();
             this.textBoxRoomNumber = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.listBoxLobby = new System.Windows.Forms.ListBox();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
             this.groupBox5.SuspendLayout();
             this.Room.SuspendLayout();
-            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnDisconnect
@@ -188,9 +182,9 @@
             this.listBoxLog.FormattingEnabled = true;
             this.listBoxLog.HorizontalScrollbar = true;
             this.listBoxLog.ItemHeight = 12;
-            this.listBoxLog.Location = new System.Drawing.Point(10, 528);
+            this.listBoxLog.Location = new System.Drawing.Point(10, 408);
             this.listBoxLog.Name = "listBoxLog";
-            this.listBoxLog.Size = new System.Drawing.Size(490, 136);
+            this.listBoxLog.Size = new System.Drawing.Size(497, 256);
             this.listBoxLog.TabIndex = 41;
             // 
             // label1
@@ -214,7 +208,7 @@
             // 
             // textBoxUserPW
             // 
-            this.textBoxUserPW.Location = new System.Drawing.Point(68, 134);
+            this.textBoxUserPW.Location = new System.Drawing.Point(229, 110);
             this.textBoxUserPW.MaxLength = 6;
             this.textBoxUserPW.Name = "textBoxUserPW";
             this.textBoxUserPW.Size = new System.Drawing.Size(87, 21);
@@ -225,7 +219,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(10, 139);
+            this.label2.Location = new System.Drawing.Point(171, 115);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(56, 12);
             this.label2.TabIndex = 44;
@@ -234,7 +228,7 @@
             // button2
             // 
             this.button2.Font = new System.Drawing.Font("맑은 고딕", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.button2.Location = new System.Drawing.Point(10, 161);
+            this.button2.Location = new System.Drawing.Point(322, 107);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(145, 26);
             this.button2.TabIndex = 46;
@@ -255,7 +249,7 @@
             this.Room.Controls.Add(this.btn_RoomEnter);
             this.Room.Controls.Add(this.textBoxRoomNumber);
             this.Room.Controls.Add(this.label3);
-            this.Room.Location = new System.Drawing.Point(13, 255);
+            this.Room.Location = new System.Drawing.Point(12, 138);
             this.Room.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Room.Name = "Room";
             this.Room.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -376,68 +370,11 @@
             this.label3.TabIndex = 43;
             this.label3.Text = "Room Number:";
             // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.button5);
-            this.groupBox1.Controls.Add(this.button4);
-            this.groupBox1.Controls.Add(this.button3);
-            this.groupBox1.Controls.Add(this.listBoxLobby);
-            this.groupBox1.Location = new System.Drawing.Point(161, 110);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(347, 140);
-            this.groupBox1.TabIndex = 48;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Lobby";
-            // 
-            // listBoxLobby
-            // 
-            this.listBoxLobby.FormattingEnabled = true;
-            this.listBoxLobby.ItemHeight = 12;
-            this.listBoxLobby.Location = new System.Drawing.Point(11, 19);
-            this.listBoxLobby.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.listBoxLobby.Name = "listBoxLobby";
-            this.listBoxLobby.Size = new System.Drawing.Size(214, 112);
-            this.listBoxLobby.TabIndex = 50;
-            // 
-            // button3
-            // 
-            this.button3.Font = new System.Drawing.Font("맑은 고딕", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.button3.Location = new System.Drawing.Point(231, 20);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(107, 26);
-            this.button3.TabIndex = 51;
-            this.button3.Text = "List 요청";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
-            // 
-            // button4
-            // 
-            this.button4.Font = new System.Drawing.Font("맑은 고딕", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.button4.Location = new System.Drawing.Point(231, 52);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(107, 26);
-            this.button4.TabIndex = 52;
-            this.button4.Text = "Enter";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
-            // 
-            // button5
-            // 
-            this.button5.Font = new System.Drawing.Font("맑은 고딕", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.button5.Location = new System.Drawing.Point(231, 84);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(107, 26);
-            this.button5.TabIndex = 53;
-            this.button5.Text = "Leave";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
-            // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(524, 720);
-            this.Controls.Add(this.groupBox1);
+            this.ClientSize = new System.Drawing.Size(524, 696);
             this.Controls.Add(this.Room);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.textBoxUserPW);
@@ -460,7 +397,6 @@
             this.groupBox5.PerformLayout();
             this.Room.ResumeLayout(false);
             this.Room.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -497,11 +433,6 @@
         private System.Windows.Forms.ListBox listBoxRoomUserList;
         private System.Windows.Forms.Button btnRoomRelay;
         private System.Windows.Forms.TextBox textBoxRelay;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.ListBox listBoxLobby;
     }
 }
 

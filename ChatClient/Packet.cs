@@ -63,11 +63,11 @@ namespace csharp_test_client
 
     public class LoginResPacket
     {
-        public Int16 Result;
+        public UInt16 Result;
 
         public bool FromBytes(byte[] bodyData)
         {
-            Result = BitConverter.ToInt16(bodyData, 0);
+            Result = BitConverter.ToUInt16(bodyData, 0);
             return true;
         }
     }
@@ -91,13 +91,13 @@ namespace csharp_test_client
 
     public class RoomEnterResPacket
     {
-        public Int16 Result;
-        public Int64 RoomUserUniqueId;
+        public UInt16 Result;
+        //public Int64 RoomUserUniqueId;
 
         public bool FromBytes(byte[] bodyData)
         {
-            Result = BitConverter.ToInt16(bodyData, 0);
-            RoomUserUniqueId = BitConverter.ToInt64(bodyData, 2);
+            Result = BitConverter.ToUInt16(bodyData, 0);
+            //RoomUserUniqueId = BitConverter.ToInt64(bodyData, 2);
             return true;
         }
     }
@@ -159,19 +159,16 @@ namespace csharp_test_client
 
     public class RoomChatReqPacket
     {
-        Int16 MsgLen;
-        byte[] Msg;//= new byte[PacketDef.MAX_USER_ID_BYTE_LENGTH];
+        byte[] Msg = new byte[PacketDef.MAX_CHAT_MSG_SIZE];
 
         public void SetValue(string message)
         {
-            Msg = Encoding.UTF8.GetBytes(message);
-            MsgLen = (Int16)Msg.Length;
+            Encoding.UTF8.GetBytes(message).CopyTo(Msg, 0);
         }
 
         public byte[] ToBytes()
         {
             List<byte> dataSource = new List<byte>();
-            dataSource.AddRange(BitConverter.GetBytes(MsgLen));
             dataSource.AddRange(Msg);
             return dataSource.ToArray();
         }
@@ -179,28 +176,27 @@ namespace csharp_test_client
 
     public class RoomChatResPacket
     {
-        public Int16 Result;
+        public UInt16 Result;
         
         public bool FromBytes(byte[] bodyData)
         {
-            Result = BitConverter.ToInt16(bodyData, 0);
+            Result = BitConverter.ToUInt16(bodyData, 0);
             return true;
         }
     }
 
     public class RoomChatNtfPacket
     {
-        public Int64 UserUniqueId;
+        public string UserID;
         public string Message;
 
         public bool FromBytes(byte[] bodyData)
         {
-            UserUniqueId = BitConverter.ToInt64(bodyData, 0);
+            UserID = Encoding.UTF8.GetString(bodyData, 0, PacketDef.MAX_USER_ID_BYTE_LENGTH);
+            UserID = UserID.Trim();
+            Message = Encoding.UTF8.GetString(bodyData, PacketDef.MAX_USER_ID_BYTE_LENGTH, PacketDef.MAX_CHAT_MSG_SIZE);
+            Message = Message.Trim();
 
-            var msgLen = BitConverter.ToInt16(bodyData, 8);
-            byte[] messageTemp = new byte[msgLen];
-            Buffer.BlockCopy(bodyData, 8 + 2, messageTemp, 0, msgLen);
-            Message = Encoding.UTF8.GetString(messageTemp);
             return true;
         }
     }
@@ -208,11 +204,11 @@ namespace csharp_test_client
 
      public class RoomLeaveResPacket
     {
-        public Int16 Result;
+        public UInt16 Result;
         
         public bool FromBytes(byte[] bodyData)
         {
-            Result = BitConverter.ToInt16(bodyData, 0);
+            Result = BitConverter.ToUInt16(bodyData, 0);
             return true;
         }
     }

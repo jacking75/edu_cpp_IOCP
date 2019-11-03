@@ -650,7 +650,46 @@ public:
 
 		return ret;
 	}
+	
+	bool get(const std::string& key, std::string& value)
+	{
+		if (!_connected || !_redCtx)
+		{
+			_errStr = _errDes[ERR_NO_CONNECT];
+			return false;
+		}
 
+		bool ret = false;
+		redisReply* reply = redisCmd("GET %s", key.c_str());
+
+		if (_getError(reply))
+		{
+			ret = false;
+		}
+		else
+		{
+			if (REDIS_REPLY_NIL == reply->type)
+			{
+				_errStr = std::string(_errDes[ERR_NO_KEY]) + " or " + 	_errDes[ERR_NO_FIELD];
+				ret = false;
+			}
+			else
+			{
+				value = reply->str;
+				ret = true;
+			}
+		}
+		if (NULL != reply)
+		{
+			freeReplyObject(reply);
+		}
+		else
+		{
+		}
+
+		return ret;
+	}
+	
 	//////////////////////////////   hash 的方法 //////////////////////////////////////
 
 	/**
