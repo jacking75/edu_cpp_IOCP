@@ -165,7 +165,8 @@ private:
 	bool CreateWokerThread()
 	{
 		//WaingThread Queue에 대기 상태로 넣을 쓰레드들 생성 권장되는 개수 : (cpu개수 * 2) + 1 
-		for (UINT32 i = 0; i < MaxIOWorkerThreadCount; i++)
+		auto threadCount = (MaxIOWorkerThreadCount * 2) + 1;
+		for (UINT32 i = 0; i < threadCount; i++)
 		{
 			mIOWorkerThreads.emplace_back([this](){ WokerThread(); });			
 		}
