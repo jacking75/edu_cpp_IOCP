@@ -78,3 +78,19 @@ Modern C++을 적극적으로 사용하는 것을 추천한다.
     - Network, Content는 각각 정적 라이브러리로 만든다.  
     - Host는 콘솔 프로젝트. Network, Content 라이브러리를 사용한다.  
   
+  
+  
+  
+## 참고 글 모음
+- [IOCP 기본 구조 이해](https://www.slideshare.net/namhyeonuk90/iocp )
+- [IOCP에 대하여](https://www.joinc.co.kr/w/Site/win_network_prog/doc/iocp )
+- [IOCP (I/O CompletionPort)](https://chfhrqnfrhc.tistory.com/entry/IOCP )
+- [IOCP 정리](https://hmjo.tistory.com/159 )
+- [IOCP](https://blog.naver.com/zzangrho/80150515226 )
+- [IOCP 모델](https://blog.naver.com/handodos/140138259592 )
+- [IOCP 모델 - 구조의 이해](https://zxwnstn.blog.me/221513630216 )
+- [서버 모델 - 윈도우 IOCP](https://dev-ahn.tistory.com/114 )
+- [IOCP 내용 정리](https://blog.naver.com/dkdldhekznal/221233789231 )
+- [게임 서버를 제작하기 위한 IOCP 네트워크 클래스 만들기 Ver1](https://blog.naver.com/dkdldhekznal/221235469866 )
+- [게임 서버를 제작하기 위한 IOCP 네트워크 클래스 만들기 Ver2](https://blog.naver.com/dkdldhekznal/221242411793 )
+  
