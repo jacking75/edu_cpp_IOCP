@@ -6,7 +6,7 @@
 #include <queue>
 
 
-//Å¬¶óÀÌ¾ğÆ® Á¤º¸¸¦ ´ã±âÀ§ÇÑ ±¸Á¶Ã¼
+//í´ë¼ì´ì–¸íŠ¸ ì •ë³´ë¥¼ ë‹´ê¸°ìœ„í•œ êµ¬ì¡°ì²´
 class stClientInfo
 {
 public:
@@ -36,7 +36,7 @@ public:
 
 		Clear();
 
-		//I/O Completion Port°´Ã¼¿Í ¼ÒÄÏÀ» ¿¬°á½ÃÅ²´Ù.
+		//I/O Completion Portê°ì²´ì™€ ì†Œì¼“ì„ ì—°ê²°ì‹œí‚¨ë‹¤.
 		if (BindIOCompletionPort(iocpHandle_) == false)
 		{
 			return false;
@@ -47,21 +47,21 @@ public:
 
 	void Close(bool bIsForce = false)
 	{
-		struct linger stLinger = { 0, 0 };	// SO_DONTLINGER·Î ¼³Á¤
+		struct linger stLinger = { 0, 0 };	// SO_DONTLINGERë¡œ ì„¤ì •
 
-	// bIsForce°¡ trueÀÌ¸é SO_LINGER, timeout = 0À¸·Î ¼³Á¤ÇÏ¿© °­Á¦ Á¾·á ½ÃÅ²´Ù. ÁÖÀÇ : µ¥ÀÌÅÍ ¼Õ½ÇÀÌ ÀÖÀ»¼ö ÀÖÀ½ 
+	// bIsForceê°€ trueì´ë©´ SO_LINGER, timeout = 0ìœ¼ë¡œ ì„¤ì •í•˜ì—¬ ê°•ì œ ì¢…ë£Œ ì‹œí‚¨ë‹¤. ì£¼ì˜ : ë°ì´í„° ì†ì‹¤ì´ ìˆì„ìˆ˜ ìˆìŒ 
 		if (true == bIsForce)
 		{
 			stLinger.l_onoff = 1;
 		}
 
-		//socketClose¼ÒÄÏÀÇ µ¥ÀÌÅÍ ¼Û¼ö½ÅÀ» ¸ğµÎ Áß´Ü ½ÃÅ²´Ù.
+		//socketCloseì†Œì¼“ì˜ ë°ì´í„° ì†¡ìˆ˜ì‹ ì„ ëª¨ë‘ ì¤‘ë‹¨ ì‹œí‚¨ë‹¤.
 		shutdown(mSock, SD_BOTH);
 
-		//¼ÒÄÏ ¿É¼ÇÀ» ¼³Á¤ÇÑ´Ù.
+		//ì†Œì¼“ ì˜µì…˜ì„ ì„¤ì •í•œë‹¤.
 		setsockopt(mSock, SOL_SOCKET, SO_LINGER, (char*)&stLinger, sizeof(stLinger));
 
-		//¼ÒÄÏ ¿¬°áÀ» Á¾·á ½ÃÅ²´Ù. 
+		//ì†Œì¼“ ì—°ê²°ì„ ì¢…ë£Œ ì‹œí‚¨ë‹¤. 
 		closesocket(mSock);		
 		mSock = INVALID_SOCKET;
 	}
@@ -72,14 +72,14 @@ public:
 
 	bool BindIOCompletionPort(HANDLE iocpHandle_)
 	{
-		//socket°ú pClientInfo¸¦ CompletionPort°´Ã¼¿Í ¿¬°á½ÃÅ²´Ù.
+		//socketê³¼ pClientInfoë¥¼ CompletionPortê°ì²´ì™€ ì—°ê²°ì‹œí‚¨ë‹¤.
 		auto hIOCP = CreateIoCompletionPort((HANDLE)GetSock()
 			, iocpHandle_
 			, (ULONG_PTR)(this), 0);
 
 		if (hIOCP == INVALID_HANDLE_VALUE)
 		{
-			printf("[¿¡·¯] CreateIoCompletionPort()ÇÔ¼ö ½ÇÆĞ: %d\n", GetLastError());
+			printf("[ì—ëŸ¬] CreateIoCompletionPort()í•¨ìˆ˜ ì‹¤íŒ¨: %d\n", GetLastError());
 			return false;
 		}
 
@@ -91,7 +91,7 @@ public:
 		DWORD dwFlag = 0;
 		DWORD dwRecvNumBytes = 0;
 
-		//Overlapped I/OÀ» À§ÇØ °¢ Á¤º¸¸¦ ¼ÂÆÃÇØ ÁØ´Ù.
+		//Overlapped I/Oì„ ìœ„í•´ ê° ì •ë³´ë¥¼ ì…‹íŒ…í•´ ì¤€ë‹¤.
 		mRecvOverlappedEx.m_wsaBuf.len = MAX_SOCKBUF;
 		mRecvOverlappedEx.m_wsaBuf.buf = mRecvBuf;
 		mRecvOverlappedEx.m_eOperation = IOOperation::RECV;
@@ -104,17 +104,16 @@ public:
 			(LPWSAOVERLAPPED) & (mRecvOverlappedEx),
 			NULL);
 
-		//socket_errorÀÌ¸é client socketÀÌ ²÷¾îÁø°É·Î Ã³¸®ÇÑ´Ù.
+		//socket_errorì´ë©´ client socketì´ ëŠì–´ì§„ê±¸ë¡œ ì²˜ë¦¬í•œë‹¤.
 		if (nRet == SOCKET_ERROR && (WSAGetLastError() != ERROR_IO_PENDING))
 		{
-			printf("[¿¡·¯] WSARecv()ÇÔ¼ö ½ÇÆĞ : %d\n", WSAGetLastError());
+			printf("[ì—ëŸ¬] WSARecv()í•¨ìˆ˜ ì‹¤íŒ¨ : %d\n", WSAGetLastError());
 			return false;
 		}
 
 		return true;
 	}
 
-	// 1°³ÀÇ ½º·¹µå¿¡¼­¸¸ È£ÃâÇØ¾ß ÇÑ´Ù!
 	bool SendMsg(const UINT32 dataSize_, char* pMsg_)
 	{	
 		auto sendOverlappedEx = new stOverlappedEx;
@@ -138,7 +137,7 @@ public:
 
 	void SendCompleted(const UINT32 dataSize_)
 	{		
-		printf("[¼Û½Å ¿Ï·á] bytes : %d\n", dataSize_);
+		printf("[ì†¡ì‹  ì™„ë£Œ] bytes : %d\n", dataSize_);
 
 		std::lock_guard<std::mutex> guard(mSendLock);
 
@@ -168,10 +167,10 @@ private:
 			(LPWSAOVERLAPPED)sendOverlappedEx,
 			NULL);
 
-		//socket_errorÀÌ¸é client socketÀÌ ²÷¾îÁø°É·Î Ã³¸®ÇÑ´Ù.
+		//socket_errorì´ë©´ client socketì´ ëŠì–´ì§„ê±¸ë¡œ ì²˜ë¦¬í•œë‹¤.
 		if (nRet == SOCKET_ERROR && (WSAGetLastError() != ERROR_IO_PENDING))
 		{
-			printf("[¿¡·¯] WSASend()ÇÔ¼ö ½ÇÆĞ : %d\n", WSAGetLastError());
+			printf("[ì—ëŸ¬] WSASend()í•¨ìˆ˜ ì‹¤íŒ¨ : %d\n", WSAGetLastError());
 			return false;
 		}
 
@@ -180,10 +179,10 @@ private:
 
 
 	INT32 mIndex = 0;
-	SOCKET			mSock;			//Cliet¿Í ¿¬°áµÇ´Â ¼ÒÄÏ
-	stOverlappedEx	mRecvOverlappedEx;	//RECV Overlapped I/OÀÛ¾÷À» À§ÇÑ º¯¼ö
+	SOCKET			mSock;			//Clietì™€ ì—°ê²°ë˜ëŠ” ì†Œì¼“
+	stOverlappedEx	mRecvOverlappedEx;	//RECV Overlapped I/Oì‘ì—…ì„ ìœ„í•œ ë³€ìˆ˜
 	
-	char			mRecvBuf[MAX_SOCKBUF]; //µ¥ÀÌÅÍ ¹öÆÛ
+	char			mRecvBuf[MAX_SOCKBUF]; //ë°ì´í„° ë²„í¼
 
 	std::mutex mSendLock;
 	std::queue<stOverlappedEx*> mSendDataqueue;
