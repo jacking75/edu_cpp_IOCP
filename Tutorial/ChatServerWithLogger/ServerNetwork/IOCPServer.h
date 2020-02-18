@@ -21,20 +21,12 @@ public:
 
 	//소켓을 초기화하는 함수
 	bool Init(const UINT32 maxIOWorkerThreadCount_)
-	{
-		//https://github.com/SergiusTheBest/plog#eventlogappender
-		//https://github.com/SergiusTheBest/plog/blob/master/samples/EventLog/Main.cpp
-		if (!plog::EventLogAppenderRegistry::add(L"eduChatServer"))
+	{			
+		if (InitLogger() == false)
 		{
-			printf("Failed to register eventlog source.");
-			return -1;
+			std::cout << "Fail Logger Init" << std::endl;
+			return false;
 		}
-
-		static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender;
-		static plog::EventLogAppender<plog::MessageOnlyFormatter> eventLogAppender(L"eduChatServer");
-		plog::init(plog::debug, &consoleAppender).addAppender(&eventLogAppender);
-
-		plog::init(plog::debug, "Hello.txt");
 
 		WSADATA wsaData;
 		
@@ -58,6 +50,28 @@ public:
 
 		PLOGI << "소켓 초기화 성공!"; 
 		printf("소켓 초기화 성공\n");
+		return true;
+	}
+
+	bool InitLogger()
+	{
+		// 파일로 로그를 남기는 경우
+		//static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender;
+		//static plog::RollingFileAppender<plog::CsvFormatter> fileAppender("MultiAppender.csv", 8000, 3); // Create the 1st appender.
+		//plog::init(plog::debug, &consoleAppender).addAppender(&fileAppender);
+
+		// 이벤트 등록 때문에 이 프로그램은 관리자 권한의 실행이 필요하다
+		//Windows Event Log
+		//https://github.com/SergiusTheBest/plog#eventlogappender
+		//https://github.com/SergiusTheBest/plog/blob/master/samples/EventLog/Main.cpp
+		if (!plog::EventLogAppenderRegistry::add(L"eduChatServer"))
+		{
+			printf("Failed to register eventlog source.");
+			return false;
+		}
+
+		static plog::EventLogAppender<plog::MessageOnlyFormatter> eventLogAppender(L"eduChatServer");
+		plog::init(plog::debug, &eventLogAppender);				
 		return true;
 	}
 		
