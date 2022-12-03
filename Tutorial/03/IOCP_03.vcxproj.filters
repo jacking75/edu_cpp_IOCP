@@ -10,6 +10,7 @@
     <ClInclude Include="Define.h">
       <Filter>ServerNetwork</Filter>
     </ClInclude>
+    <ClInclude Include="EchoServer.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ServerNetwork">

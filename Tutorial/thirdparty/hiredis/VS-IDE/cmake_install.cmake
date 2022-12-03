@@ -1,4 +1,4 @@
-# Install script for directory: E:/Github/edu_cpp_IOCP/Tutorial/thirdparty/hiredis
+# Install script for directory: E:/Github/06_edu_cpp_IOCP/Tutorial/thirdparty/hiredis
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,43 +34,43 @@ endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   if("${CMAKE_INSTALL_CONFIG_NAME}" MATCHES "^([Dd][Ee][Bb][Uu][Gg])$")
-    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY OPTIONAL FILES "E:/Github/edu_cpp_IOCP/Tutorial/thirdparty/hiredis/VS-IDE/Debug/hiredis.lib")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY OPTIONAL FILES "E:/Github/06_edu_cpp_IOCP/Tutorial/thirdparty/hiredis/VS-IDE/Debug/hiredis.lib")
   elseif("${CMAKE_INSTALL_CONFIG_NAME}" MATCHES "^([Rr][Ee][Ll][Ee][Aa][Ss][Ee])$")
-    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY OPTIONAL FILES "E:/Github/edu_cpp_IOCP/Tutorial/thirdparty/hiredis/VS-IDE/Release/hiredis.lib")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY OPTIONAL FILES "E:/Github/06_edu_cpp_IOCP/Tutorial/thirdparty/hiredis/VS-IDE/Release/hiredis.lib")
   elseif("${CMAKE_INSTALL_CONFIG_NAME}" MATCHES "^([Mm][Ii][Nn][Ss][Ii][Zz][Ee][Rr][Ee][Ll])$")
-    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY OPTIONAL FILES "E:/Github/edu_cpp_IOCP/Tutorial/thirdparty/hiredis/VS-IDE/MinSizeRel/hiredis.lib")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY OPTIONAL FILES "E:/Github/06_edu_cpp_IOCP/Tutorial/thirdparty/hiredis/VS-IDE/MinSizeRel/hiredis.lib")
   elseif("${CMAKE_INSTALL_CONFIG_NAME}" MATCHES "^([Rr][Ee][Ll][Ww][Ii][Tt][Hh][Dd][Ee][Bb][Ii][Nn][Ff][Oo])$")
-    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY OPTIONAL FILES "E:/Github/edu_cpp_IOCP/Tutorial/thirdparty/hiredis/VS-IDE/RelWithDebInfo/hiredis.lib")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY OPTIONAL FILES "E:/Github/06_edu_cpp_IOCP/Tutorial/thirdparty/hiredis/VS-IDE/RelWithDebInfo/hiredis.lib")
   endif()
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   if("${CMAKE_INSTALL_CONFIG_NAME}" MATCHES "^([Dd][Ee][Bb][Uu][Gg])$")
-    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "E:/Github/edu_cpp_IOCP/Tutorial/thirdparty/hiredis/VS-IDE/Debug/hiredis.dll")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "E:/Github/06_edu_cpp_IOCP/Tutorial/thirdparty/hiredis/VS-IDE/Debug/hiredis.dll")
   elseif("${CMAKE_INSTALL_CONFIG_NAME}" MATCHES "^([Rr][Ee][Ll][Ee][Aa][Ss][Ee])$")
-    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "E:/Github/edu_cpp_IOCP/Tutorial/thirdparty/hiredis/VS-IDE/Release/hiredis.dll")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "E:/Github/06_edu_cpp_IOCP/Tutorial/thirdparty/hiredis/VS-IDE/Release/hiredis.dll")
   elseif("${CMAKE_INSTALL_CONFIG_NAME}" MATCHES "^([Mm][Ii][Nn][Ss][Ii][Zz][Ee][Rr][Ee][Ll])$")
-    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "E:/Github/edu_cpp_IOCP/Tutorial/thirdparty/hiredis/VS-IDE/MinSizeRel/hiredis.dll")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "E:/Github/06_edu_cpp_IOCP/Tutorial/thirdparty/hiredis/VS-IDE/MinSizeRel/hiredis.dll")
   elseif("${CMAKE_INSTALL_CONFIG_NAME}" MATCHES "^([Rr][Ee][Ll][Ww][Ii][Tt][Hh][Dd][Ee][Bb][Ii][Nn][Ff][Oo])$")
-    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "E:/Github/edu_cpp_IOCP/Tutorial/thirdparty/hiredis/VS-IDE/RelWithDebInfo/hiredis.dll")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "E:/Github/06_edu_cpp_IOCP/Tutorial/thirdparty/hiredis/VS-IDE/RelWithDebInfo/hiredis.dll")
   endif()
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/hiredis" TYPE FILE FILES
-    "E:/Github/edu_cpp_IOCP/Tutorial/thirdparty/hiredis/hiredis.h"
-    "E:/Github/edu_cpp_IOCP/Tutorial/thirdparty/hiredis/read.h"
-    "E:/Github/edu_cpp_IOCP/Tutorial/thirdparty/hiredis/sds.h"
-    "E:/Github/edu_cpp_IOCP/Tutorial/thirdparty/hiredis/async.h"
+    "E:/Github/06_edu_cpp_IOCP/Tutorial/thirdparty/hiredis/hiredis.h"
+    "E:/Github/06_edu_cpp_IOCP/Tutorial/thirdparty/hiredis/read.h"
+    "E:/Github/06_edu_cpp_IOCP/Tutorial/thirdparty/hiredis/sds.h"
+    "E:/Github/06_edu_cpp_IOCP/Tutorial/thirdparty/hiredis/async.h"
     )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/hiredis" TYPE DIRECTORY FILES "E:/Github/edu_cpp_IOCP/Tutorial/thirdparty/hiredis/adapters")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/hiredis" TYPE DIRECTORY FILES "E:/Github/06_edu_cpp_IOCP/Tutorial/thirdparty/hiredis/adapters")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "E:/Github/edu_cpp_IOCP/Tutorial/thirdparty/hiredis/VS-IDE/hiredis.pc")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "E:/Github/06_edu_cpp_IOCP/Tutorial/thirdparty/hiredis/VS-IDE/hiredis.pc")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)
@@ -81,5 +81,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "E:/Github/edu_cpp_IOCP/Tutorial/thirdparty/hiredis/VS-IDE/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "E:/Github/06_edu_cpp_IOCP/Tutorial/thirdparty/hiredis/VS-IDE/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

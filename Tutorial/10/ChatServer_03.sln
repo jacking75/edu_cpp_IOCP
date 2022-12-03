@@ -1,7 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 16
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ChatServer_03", "ChatServer_03.vcxproj", "{B25C4CB4-1E3C-CB4F-2754-562693B231B1}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33103.184
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ChatServer_03", "ChatServer_03.vcxproj", "{51BA089A-13B7-403B-8422-14972E641F59}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,12 +11,15 @@ Global
 		Release|Win64 = Release|Win64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B25C4CB4-1E3C-CB4F-2754-562693B231B1}.Debug|Win64.ActiveCfg = Debug Win64|x64
-		{B25C4CB4-1E3C-CB4F-2754-562693B231B1}.Debug|Win64.Build.0 = Debug Win64|x64
-		{B25C4CB4-1E3C-CB4F-2754-562693B231B1}.Release|Win64.ActiveCfg = Release Win64|x64
-		{B25C4CB4-1E3C-CB4F-2754-562693B231B1}.Release|Win64.Build.0 = Release Win64|x64
+		{51BA089A-13B7-403B-8422-14972E641F59}.Debug|Win64.ActiveCfg = Debug Win64|x64
+		{51BA089A-13B7-403B-8422-14972E641F59}.Debug|Win64.Build.0 = Debug Win64|x64
+		{51BA089A-13B7-403B-8422-14972E641F59}.Release|Win64.ActiveCfg = Release Win64|x64
+		{51BA089A-13B7-403B-8422-14972E641F59}.Release|Win64.Build.0 = Release Win64|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3C173561-CA80-421C-A442-C08D1E0BD798}
 	EndGlobalSection
 EndGlobal

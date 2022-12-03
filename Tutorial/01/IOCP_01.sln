@@ -1,7 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 16
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IOCP_01", "IOCP_01.vcxproj", "{B05C4CB4-1C3C-CB4F-2554-562691B231B1}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33103.184
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IOCP_01", "IOCP_01.vcxproj", "{5975048C-30EF-4D61-A112-6508B13FEB78}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,12 +11,15 @@ Global
 		Release|Win64 = Release|Win64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B05C4CB4-1C3C-CB4F-2554-562691B231B1}.Debug|Win64.ActiveCfg = Debug Win64|x64
-		{B05C4CB4-1C3C-CB4F-2554-562691B231B1}.Debug|Win64.Build.0 = Debug Win64|x64
-		{B05C4CB4-1C3C-CB4F-2554-562691B231B1}.Release|Win64.ActiveCfg = Release Win64|x64
-		{B05C4CB4-1C3C-CB4F-2554-562691B231B1}.Release|Win64.Build.0 = Release Win64|x64
+		{5975048C-30EF-4D61-A112-6508B13FEB78}.Debug|Win64.ActiveCfg = Debug Win64|x64
+		{5975048C-30EF-4D61-A112-6508B13FEB78}.Debug|Win64.Build.0 = Debug Win64|x64
+		{5975048C-30EF-4D61-A112-6508B13FEB78}.Release|Win64.ActiveCfg = Release Win64|x64
+		{5975048C-30EF-4D61-A112-6508B13FEB78}.Release|Win64.Build.0 = Release Win64|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {078B383E-1816-470F-AE48-F478698D22C8}
 	EndGlobalSection
 EndGlobal
