@@ -50,10 +50,7 @@ public:
 	{
 		SOCKADDR_IN		stServerAddr;
 		stServerAddr.sin_family = AF_INET;
-		stServerAddr.sin_port = htons(nBindPort); //서버 포트를 설정한다.		
-		//어떤 주소에서 들어오는 접속이라도 받아들이겠다.
-		//보통 서버라면 이렇게 설정한다. 만약 한 아이피에서만 접속을 받고 싶다면
-		//그 주소를 inet_addr함수를 이용해 넣으면 된다.
+		stServerAddr.sin_port = htons(nBindPort); //서버 포트를 설정한다.				
 		stServerAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
 		//위에서 지정한 서버 주소 정보와 cIOCompletionPort 소켓을 연결한다.
@@ -64,8 +61,6 @@ public:
 			return false;
 		}
 
-		//접속 요청을 받아들이기 위해 cIOCompletionPort소켓을 등록하고 
-		//접속대기큐를 5개로 설정 한다.
 		nRet = listen(mListenSocket, 5);
 		if (0 != nRet)
 		{
@@ -77,7 +72,6 @@ public:
 		return true;
 	}
 
-	//접속 요청을 수락하고 메세지를 받아서 처리하는 함수
 	bool StartServer(const UINT32 maxClientCount)
 	{
 		CreateClient(maxClientCount);
@@ -90,7 +84,6 @@ public:
 			return false;
 		}
 
-		//접속된 클라이언트 주소 정보를 저장할 구조체
 		bool bRet = CreateWokerThread();
 		if (false == bRet) {
 			return false;
@@ -259,13 +252,9 @@ private:
 	//그에 해당하는 처리를 하는 함수
 	void WokerThread()
 	{
-		//CompletionKey를 받을 포인터 변수
 		stClientInfo* pClientInfo = nullptr;
-		//함수 호출 성공 여부
 		BOOL bSuccess = TRUE;
-		//Overlapped I/O작업에서 전송된 데이터 크기
 		DWORD dwIoSize = 0;
-		//I/O 작업을 위해 요청한 Overlapped 구조체를 받을 포인터
 		LPOVERLAPPED lpOverlapped = NULL;
 
 		while (mIsWorkerRun)

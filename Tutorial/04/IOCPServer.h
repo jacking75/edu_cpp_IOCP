@@ -43,15 +43,11 @@ public:
 		return true;
 	}
 		
-	//서버의 주소정보를 소켓과 연결시키고 접속 요청을 받기 위해 소켓을 등록하는 함수
 	bool BindandListen(int nBindPort)
 	{
 		SOCKADDR_IN		stServerAddr;
 		stServerAddr.sin_family = AF_INET;
 		stServerAddr.sin_port = htons(nBindPort); //서버 포트를 설정한다.		
-		//어떤 주소에서 들어오는 접속이라도 받아들이겠다.
-		//보통 서버라면 이렇게 설정한다. 만약 한 아이피에서만 접속을 받고 싶다면
-		//그 주소를 inet_addr함수를 이용해 넣으면 된다.
 		stServerAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
 		//위에서 지정한 서버 주소 정보와 cIOCompletionPort 소켓을 연결한다.
@@ -80,7 +76,6 @@ public:
 	{
 		CreateClient(maxClientCount);
 
-		//CompletionPort객체 생성 요청을 한다.
 		mIOCPHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, NULL, MAX_WORKERTHREAD);
 		if (NULL == mIOCPHandle)
 		{
@@ -88,7 +83,6 @@ public:
 			return false;
 		}
 
-		//접속된 클라이언트 주소 정보를 저장할 구조체
 		bool bRet = CreateWokerThread();
 		if (false == bRet) {
 			return false;
@@ -133,11 +127,12 @@ public:
 		return pClient->SendMsg(dataSize_, pData);
 	}
 	
+	
 	virtual void OnConnect(const UINT32 clientIndex_) {}
-
 	virtual void OnClose(const UINT32 clientIndex_) {}
-
 	virtual void OnReceive(const UINT32 clientIndex_, const UINT32 size_, char* pData_) {}
+
+
 
 private:
 	void CreateClient(const UINT32 maxClientCount)
@@ -150,11 +145,10 @@ private:
 		}
 	}
 
-	//WaitingThread Queue에서 대기할 쓰레드들을 생성
 	bool CreateWokerThread()
 	{
 		unsigned int uiThreadId = 0;
-		//WaingThread Queue에 대기 상태로 넣을 쓰레드들 생성 권장되는 개수 : (cpu개수 * 2) + 1 
+
 		for (int i = 0; i < MAX_WORKERTHREAD; i++)
 		{
 			mIOWorkerThreads.emplace_back([this](){ WokerThread(); });			
@@ -195,13 +189,9 @@ private:
 	//Overlapped I/O작업에 대한 완료 통보를 받아 그에 해당하는 처리를 하는 함수
 	void WokerThread()
 	{
-		//CompletionKey를 받을 포인터 변수
 		stClientInfo* pClientInfo = nullptr;
-		//함수 호출 성공 여부
 		BOOL bSuccess = TRUE;
-		//Overlapped I/O작업에서 전송된 데이터 크기
 		DWORD dwIoSize = 0;
-		//I/O 작업을 위해 요청한 Overlapped 구조체를 받을 포인터
 		LPOVERLAPPED lpOverlapped = NULL;
 
 		while (mIsWorkerRun)
@@ -212,7 +202,7 @@ private:
 				&lpOverlapped,				// Overlapped IO 객체
 				INFINITE);					// 대기할 시간
 
-			//사용자 쓰레드 종료 메세지 처리..
+
 			if (TRUE == bSuccess && 0 == dwIoSize && NULL == lpOverlapped)
 			{
 				mIsWorkerRun = false;

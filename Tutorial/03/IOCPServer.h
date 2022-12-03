@@ -48,12 +48,8 @@ public:
 		SOCKADDR_IN		stServerAddr;
 		stServerAddr.sin_family = AF_INET;
 		stServerAddr.sin_port = htons(nBindPort); //서버 포트를 설정한다.		
-		//어떤 주소에서 들어오는 접속이라도 받아들이겠다.
-		//보통 서버라면 이렇게 설정한다. 만약 한 아이피에서만 접속을 받고 싶다면
-		//그 주소를 inet_addr함수를 이용해 넣으면 된다.
 		stServerAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-		//위에서 지정한 서버 주소 정보와 cIOCompletionPort 소켓을 연결한다.
 		int nRet = bind(mListenSocket, (SOCKADDR*)&stServerAddr, sizeof(SOCKADDR_IN));
 		if (0 != nRet)
 		{
@@ -61,8 +57,6 @@ public:
 			return false;
 		}
 
-		//접속 요청을 받아들이기 위해 cIOCompletionPort소켓을 등록하고 
-		//접속대기큐를 5개로 설정 한다.
 		nRet = listen(mListenSocket, 5);
 		if (0 != nRet)
 		{
@@ -74,12 +68,10 @@ public:
 		return true;
 	}
 
-	//접속 요청을 수락하고 메세지를 받아서 처리하는 함수
 	bool StartServer(const UINT32 maxClientCount)
 	{
 		CreateClient(maxClientCount);
 
-		//CompletionPort객체 생성 요청을 한다.
 		mIOCPHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, NULL, MAX_WORKERTHREAD);
 		if (NULL == mIOCPHandle)
 		{
@@ -87,7 +79,6 @@ public:
 			return false;
 		}
 
-		//접속된 클라이언트 주소 정보를 저장할 구조체
 		bool bRet = CreateWokerThread();
 		if (false == bRet) {
 			return false;
@@ -116,7 +107,6 @@ public:
 			}
 		}
 		
-		//Accepter 쓰레드를 종요한다.
 		mIsAccepterRun = false;
 		closesocket(mListenSocket);
 		
@@ -127,11 +117,11 @@ public:
 	}
 
 	
+	// 네트워크 이벤트를 처리할 함수들
 	virtual void OnConnect(const UINT32 clientIndex_) {}
-
 	virtual void OnClose(const UINT32 clientIndex_) {}
-
 	virtual void OnReceive(const UINT32 clientIndex_, const UINT32 size_, char* pData_) {}
+
 
 private:
 	void CreateClient(const UINT32 maxClientCount)
@@ -144,11 +134,9 @@ private:
 		}
 	}
 
-	//WaitingThread Queue에서 대기할 쓰레드들을 생성
 	bool CreateWokerThread()
 	{
-		unsigned int uiThreadId = 0;
-		//WaingThread Queue에 대기 상태로 넣을 쓰레드들 생성 권장되는 개수 : (cpu개수 * 2) + 1 
+		unsigned int uiThreadId = 0;		
 		for (int i = 0; i < MAX_WORKERTHREAD; i++)
 		{
 			mIOWorkerThreads.emplace_back([this](){ WokerThread(); });			
@@ -181,11 +169,8 @@ private:
 		return nullptr;
 	}
 
-	//CompletionPort객체와 소켓과 CompletionKey를
-	//연결시키는 역할을 한다.
 	bool BindIOCompletionPort(stClientInfo* pClientInfo)
 	{
-		//socket과 pClientInfo를 CompletionPort객체와 연결시킨다.
 		auto hIOCP = CreateIoCompletionPort((HANDLE)pClientInfo->m_socketClient
 										, mIOCPHandle
 										, (ULONG_PTR)(pClientInfo), 0);
@@ -260,17 +245,11 @@ private:
 		return true;
 	}
 
-	//Overlapped I/O작업에 대한 완료 통보를 받아 
-	//그에 해당하는 처리를 하는 함수
 	void WokerThread()
 	{
-		//CompletionKey를 받을 포인터 변수
 		stClientInfo* pClientInfo = nullptr;
-		//함수 호출 성공 여부
 		BOOL bSuccess = TRUE;
-		//Overlapped I/O작업에서 전송된 데이터 크기
 		DWORD dwIoSize = 0;
-		//I/O 작업을 위해 요청한 Overlapped 구조체를 받을 포인터
 		LPOVERLAPPED lpOverlapped = NULL;
 
 		while (mIsWorkerRun)
@@ -384,7 +363,7 @@ private:
 
 		struct linger stLinger = { 0, 0 };	// SO_DONTLINGER로 설정
 
-	// bIsForce가 true이면 SO_LINGER, timeout = 0으로 설정하여 강제 종료 시킨다. 주의 : 데이터 손실이 있을수 있음 
+		// bIsForce가 true이면 SO_LINGER, timeout = 0으로 설정하여 강제 종료 시킨다. 주의 : 데이터 손실이 있을수 있음 
 		if (true == bIsForce)
 		{
 			stLinger.l_onoff = 1;

@@ -3,6 +3,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+// 클라이언트가 보낸 패킷을 저장하는 구조체
 struct PacketData
 {
 	UINT32 SessionIndex = 0;

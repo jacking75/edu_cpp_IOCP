@@ -2,7 +2,7 @@
 
 #include "Define.h"
 #include <stdio.h>
-//#include <queue>
+
 
 //클라이언트 정보를 담기위한 구조체
 class stClientInfo
@@ -47,19 +47,15 @@ public:
 	{
 		struct linger stLinger = { 0, 0 };	// SO_DONTLINGER로 설정
 
-	// bIsForce가 true이면 SO_LINGER, timeout = 0으로 설정하여 강제 종료 시킨다. 주의 : 데이터 손실이 있을수 있음 
 		if (true == bIsForce)
 		{
 			stLinger.l_onoff = 1;
 		}
 
-		//socketClose소켓의 데이터 송수신을 모두 중단 시킨다.
 		shutdown(mSock, SD_BOTH);
 
-		//소켓 옵션을 설정한다.
 		setsockopt(mSock, SOL_SOCKET, SO_LINGER, (char*)&stLinger, sizeof(stLinger));
 
-		//소켓 연결을 종료 시킨다. 
 		closesocket(mSock);		
 		mSock = INVALID_SOCKET;
 	}
@@ -70,7 +66,6 @@ public:
 
 	bool BindIOCompletionPort(HANDLE iocpHandle_)
 	{
-		//socket과 pClientInfo를 CompletionPort객체와 연결시킨다.
 		auto hIOCP = CreateIoCompletionPort((HANDLE)GetSock()
 			, iocpHandle_
 			, (ULONG_PTR)(this), 0);
@@ -89,7 +84,6 @@ public:
 		DWORD dwFlag = 0;
 		DWORD dwRecvNumBytes = 0;
 
-		//Overlapped I/O을 위해 각 정보를 셋팅해 준다.
 		mRecvOverlappedEx.m_wsaBuf.len = MAX_SOCKBUF;
 		mRecvOverlappedEx.m_wsaBuf.buf = mRecvBuf;
 		mRecvOverlappedEx.m_eOperation = IOOperation::RECV;
@@ -152,7 +146,5 @@ private:
 	SOCKET			mSock;			//Cliet와 연결되는 소켓
 	stOverlappedEx	mRecvOverlappedEx;	//RECV Overlapped I/O작업을 위한 변수
 	
-	char			mRecvBuf[MAX_SOCKBUF]; //데이터 버퍼
-
-	//std::queue<stOverlappedEx*> mSendDataqueue;
+	char			mRecvBuf[MAX_SOCKBUF]; //데이터 버퍼	
 };
