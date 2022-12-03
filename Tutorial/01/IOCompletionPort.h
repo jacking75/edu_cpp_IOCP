@@ -118,7 +118,7 @@ public:
 	{
 		CreateClient(maxClientCount);
 
-		//CompletionPort객체 생성 요청을 한다.
+		
 		mIOCPHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, NULL, MAX_WORKERTHREAD);
 		if (NULL == mIOCPHandle)
 		{
@@ -126,7 +126,7 @@ public:
 			return false;
 		}
 
-		//접속된 클라이언트 주소 정보를 저장할 구조체
+		
 		bool bRet = CreateWokerThread();
 		if (false == bRet) {
 			return false;
@@ -212,8 +212,7 @@ private:
 		return nullptr;
 	}
 
-	//CompletionPort객체와 소켓과 CompletionKey를
-	//연결시키는 역할을 한다.
+	//CompletionPort객체와 소켓과 CompletionKey를 연결시키는 역할을 한다.
 	bool BindIOCompletionPort(stClientInfo* pClientInfo)
 	{
 		//socket과 pClientInfo를 CompletionPort객체와 연결시킨다.
