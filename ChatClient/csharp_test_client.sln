@@ -1,9 +1,9 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csharp_test_client", "csharp_test_client.csproj", "{9E4B5E72-4E76-4E22-90B0-E53275A99018}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "csharp_test_client", "csharp_test_client.csproj", "{9E4B5E72-4E76-4E22-90B0-E53275A99018}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
