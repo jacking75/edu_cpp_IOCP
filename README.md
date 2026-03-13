@@ -4,7 +4,9 @@
 - 'Tutorial/ChatServerWithLogger' 있는 프로젝트는 채팅 서버에 plog 라이브러리를 사용하고 있으며, Windows Event Log에 로그 데이터를 기록할 수 있다.     
 - Visual Studio 2022를 사용한다(하위 버전으로 변경해도 코드 변경은 없다)
 - [YOUTUBE](https://www.youtube.com/watch?v=RMRsvll7hrM&list=PLW_xyUw4fSdbYjgwC-JCCFWznhayrZv77 )  
-- [학습 가이드](./iocp_learning_guide.md)
+- [학습 가이드](./iocp_learning_guide.md)  
+  
+**학습에 AI를 활용하면 아주 효율적으로 학습할 수 있으니 꼭 활용하기 바랍니다. 여기에 있는 코드를 AI에게 질문할 떼 첨부시켜서 궁금한 것을 마음껏 물어보기 바랍니다. 다만 배우는 단계에서는 AI에게 코딩을 맡기는 것은 피하는 것이 좋습니다.**    
     
 <br>  
   
